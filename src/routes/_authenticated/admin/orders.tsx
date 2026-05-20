@@ -44,7 +44,7 @@ function AdminOrders() {
                   <div className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
                     {o.payment_method === "cod" ? "Cash on delivery" : "Online payment"}
                   </div>
-                  <select value={o.status} onChange={(e) => setStatus(o.id, e.target.value)} className="mt-2 glass rounded-full px-3 py-1.5 text-xs outline-none">
+                  <select value={o.status} onChange={(e) => setStatus(o.id, e.target.value as typeof STATUSES[number])} className="mt-2 glass rounded-full px-3 py-1.5 text-xs outline-none">
                     {STATUSES.map((s) => <option key={s} value={s} className="bg-[var(--background)]">{s}</option>)}
                   </select>
                 </div>
