@@ -1,17 +1,45 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function WatchFace({
   size = 280,
   transparent = false,
+  animatedHands = false,
 }: {
   size?: number;
   transparent?: boolean;
+  animatedHands?: boolean;
 }) {
   const [now, setNow] = useState(new Date());
+  const secRef = useRef<SVGGElement>(null);
+  const minRef = useRef<SVGGElement>(null);
+  const hrRef = useRef<SVGGElement>(null);
+
   useEffect(() => {
+    if (animatedHands) return;
     const i = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(i);
-  }, []);
+  }, [animatedHands]);
+
+  // Continuous smooth animation for decorative mode
+  useEffect(() => {
+    if (!animatedHands) return;
+    let raf = 0;
+    const start = performance.now();
+    const c2 = size / 2;
+    const tick = (t: number) => {
+      const elapsed = (t - start) / 1000;
+      // Sped-up time: 1s real = 1 minute on the watch
+      const secDeg = (elapsed * 6) % 360;
+      const minDeg = (elapsed * 0.1 * 60) % 360;
+      const hrDeg = (elapsed * 0.5) % 360;
+      if (secRef.current) secRef.current.setAttribute("transform", `rotate(${secDeg} ${c2} ${c2})`);
+      if (minRef.current) minRef.current.setAttribute("transform", `rotate(${minDeg} ${c2} ${c2})`);
+      if (hrRef.current) hrRef.current.setAttribute("transform", `rotate(${hrDeg} ${c2} ${c2})`);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [animatedHands, size]);
 
   const s = now.getSeconds();
   const m = now.getMinutes();
@@ -108,15 +136,15 @@ export function WatchFace({
         )}
 
         {/* Hour hand */}
-        <g transform={`rotate(${hrDeg} ${c} ${c})`}>
+        <g ref={hrRef} transform={`rotate(${hrDeg} ${c} ${c})`}>
           <rect x={c - 2.5} y={c - (c - 60)} width="5" height={c - 60} rx="2" fill="oklch(0.86 0.09 85)" />
         </g>
         {/* Minute hand */}
-        <g transform={`rotate(${minDeg} ${c} ${c})`}>
+        <g ref={minRef} transform={`rotate(${minDeg} ${c} ${c})`}>
           <rect x={c - 1.8} y={c - (c - 40)} width="3.6" height={c - 40} rx="2" fill="oklch(0.92 0.06 85)" />
         </g>
         {/* Second hand */}
-        <g transform={`rotate(${secDeg} ${c} ${c})`} style={{ transition: "transform 0.1s" }}>
+        <g ref={secRef} transform={`rotate(${secDeg} ${c} ${c})`} style={animatedHands ? undefined : { transition: "transform 0.1s" }}>
           <rect x={c - 0.6} y={c - (c - 25)} width="1.2" height={c - 18} fill="oklch(0.78 0.18 35)" />
           <circle cx={c} cy={c} r="5" fill="oklch(0.78 0.18 35)" />
         </g>
