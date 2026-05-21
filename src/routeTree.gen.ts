@@ -21,7 +21,11 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminWatchesRouteImport } from './routes/_authenticated/admin/watches'
+import { Route as AuthenticatedAdminPromotionsRouteImport } from './routes/_authenticated/admin/promotions'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
+import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin/messages'
+import { Route as AuthenticatedAdminDiscountsRouteImport } from './routes/_authenticated/admin/discounts'
+import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated/admin/banners'
 
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
@@ -83,10 +87,34 @@ const AuthenticatedAdminWatchesRoute =
     path: '/watches',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPromotionsRoute =
+  AuthenticatedAdminPromotionsRouteImport.update({
+    id: '/promotions',
+    path: '/promotions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminOrdersRoute =
   AuthenticatedAdminOrdersRouteImport.update({
     id: '/orders',
     path: '/orders',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminMessagesRoute =
+  AuthenticatedAdminMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDiscountsRoute =
+  AuthenticatedAdminDiscountsRouteImport.update({
+    id: '/discounts',
+    path: '/discounts',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBannersRoute =
+  AuthenticatedAdminBannersRouteImport.update({
+    id: '/banners',
+    path: '/banners',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 
@@ -100,7 +128,11 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/watch/$id': typeof WatchIdRoute
+  '/admin/banners': typeof AuthenticatedAdminBannersRoute
+  '/admin/discounts': typeof AuthenticatedAdminDiscountsRoute
+  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/admin/watches': typeof AuthenticatedAdminWatchesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -113,7 +145,11 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopRoute
   '/account': typeof AuthenticatedAccountRoute
   '/watch/$id': typeof WatchIdRoute
+  '/admin/banners': typeof AuthenticatedAdminBannersRoute
+  '/admin/discounts': typeof AuthenticatedAdminDiscountsRoute
+  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/admin/watches': typeof AuthenticatedAdminWatchesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -129,7 +165,11 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/watch/$id': typeof WatchIdRoute
+  '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
+  '/_authenticated/admin/discounts': typeof AuthenticatedAdminDiscountsRoute
+  '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/_authenticated/admin/promotions': typeof AuthenticatedAdminPromotionsRoute
   '/_authenticated/admin/watches': typeof AuthenticatedAdminWatchesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -145,7 +185,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/watch/$id'
+    | '/admin/banners'
+    | '/admin/discounts'
+    | '/admin/messages'
     | '/admin/orders'
+    | '/admin/promotions'
     | '/admin/watches'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -158,7 +202,11 @@ export interface FileRouteTypes {
     | '/shop'
     | '/account'
     | '/watch/$id'
+    | '/admin/banners'
+    | '/admin/discounts'
+    | '/admin/messages'
     | '/admin/orders'
+    | '/admin/promotions'
     | '/admin/watches'
     | '/admin'
   id:
@@ -173,7 +221,11 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/watch/$id'
+    | '/_authenticated/admin/banners'
+    | '/_authenticated/admin/discounts'
+    | '/_authenticated/admin/messages'
     | '/_authenticated/admin/orders'
+    | '/_authenticated/admin/promotions'
     | '/_authenticated/admin/watches'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -275,6 +327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWatchesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/promotions': {
+      id: '/_authenticated/admin/promotions'
+      path: '/promotions'
+      fullPath: '/admin/promotions'
+      preLoaderRoute: typeof AuthenticatedAdminPromotionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/orders': {
       id: '/_authenticated/admin/orders'
       path: '/orders'
@@ -282,17 +341,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/messages': {
+      id: '/_authenticated/admin/messages'
+      path: '/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/discounts': {
+      id: '/_authenticated/admin/discounts'
+      path: '/discounts'
+      fullPath: '/admin/discounts'
+      preLoaderRoute: typeof AuthenticatedAdminDiscountsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/banners': {
+      id: '/_authenticated/admin/banners'
+      path: '/banners'
+      fullPath: '/admin/banners'
+      preLoaderRoute: typeof AuthenticatedAdminBannersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
+  AuthenticatedAdminDiscountsRoute: typeof AuthenticatedAdminDiscountsRoute
+  AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
+  AuthenticatedAdminPromotionsRoute: typeof AuthenticatedAdminPromotionsRoute
   AuthenticatedAdminWatchesRoute: typeof AuthenticatedAdminWatchesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
+  AuthenticatedAdminDiscountsRoute: AuthenticatedAdminDiscountsRoute,
+  AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
   AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
+  AuthenticatedAdminPromotionsRoute: AuthenticatedAdminPromotionsRoute,
   AuthenticatedAdminWatchesRoute: AuthenticatedAdminWatchesRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
@@ -327,3 +415,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
