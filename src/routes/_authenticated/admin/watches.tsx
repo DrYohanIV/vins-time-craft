@@ -63,6 +63,8 @@ function AdminWatches() {
     qc.invalidateQueries({ queryKey: ["watches"] });
   };
 
+  const lowStock = watches?.filter((w) => w.stock <= LOW_STOCK_THRESHOLD) ?? [];
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -71,6 +73,19 @@ function AdminWatches() {
           <Plus className="w-4 h-4" /> Add watch
         </button>
       </div>
+
+      {lowStock.length > 0 && (
+        <div className="glass rounded-2xl p-4 mb-4 border border-amber-500/40 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <div className="font-medium text-amber-300">Low stock alert</div>
+            <div className="text-muted-foreground mt-0.5">
+              {lowStock.length} watch{lowStock.length === 1 ? "" : "es"} at or below {LOW_STOCK_THRESHOLD} units:{" "}
+              {lowStock.map((w) => `${w.name} (${w.stock})`).join(", ")}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="glass rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
