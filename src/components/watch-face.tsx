@@ -136,15 +136,15 @@ export function WatchFace({
         )}
 
         {/* Hour hand */}
-        <g transform={`rotate(${hrDeg} ${c} ${c})`}>
+        <g ref={hrRef} transform={`rotate(${hrDeg} ${c} ${c})`}>
           <rect x={c - 2.5} y={c - (c - 60)} width="5" height={c - 60} rx="2" fill="oklch(0.86 0.09 85)" />
         </g>
         {/* Minute hand */}
-        <g transform={`rotate(${minDeg} ${c} ${c})`}>
+        <g ref={minRef} transform={`rotate(${minDeg} ${c} ${c})`}>
           <rect x={c - 1.8} y={c - (c - 40)} width="3.6" height={c - 40} rx="2" fill="oklch(0.92 0.06 85)" />
         </g>
         {/* Second hand */}
-        <g transform={`rotate(${secDeg} ${c} ${c})`} style={{ transition: "transform 0.1s" }}>
+        <g ref={secRef} transform={`rotate(${secDeg} ${c} ${c})`} style={animatedHands ? undefined : { transition: "transform 0.1s" }}>
           <rect x={c - 0.6} y={c - (c - 25)} width="1.2" height={c - 18} fill="oklch(0.78 0.18 35)" />
           <circle cx={c} cy={c} r="5" fill="oklch(0.78 0.18 35)" />
         </g>
