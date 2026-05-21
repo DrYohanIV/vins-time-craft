@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 
-export function WatchFace({ size = 280 }: { size?: number }) {
+export function WatchFace({
+  size = 280,
+  transparent = false,
+}: {
+  size?: number;
+  transparent?: boolean;
+}) {
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const i = setInterval(() => setNow(new Date()), 1000);
@@ -18,11 +24,12 @@ export function WatchFace({ size = 280 }: { size?: number }) {
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      {/* Glow */}
-      <div
-        className="absolute inset-0 rounded-full blur-2xl opacity-50"
-        style={{ background: "var(--gradient-gold)" }}
-      />
+      {!transparent && (
+        <div
+          className="absolute inset-0 rounded-full blur-2xl opacity-50"
+          style={{ background: "var(--gradient-gold)" }}
+        />
+      )}
       <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} className="relative">
         <defs>
           <radialGradient id="dial" cx="50%" cy="40%" r="60%">
@@ -37,9 +44,22 @@ export function WatchFace({ size = 280 }: { size?: number }) {
         </defs>
 
         {/* Bezel */}
-        <circle cx={c} cy={c} r={c - 4} fill="url(#bezel)" />
-        <circle cx={c} cy={c} r={c - 14} fill="url(#dial)" />
-        <circle cx={c} cy={c} r={c - 14} fill="none" stroke="oklch(0.78 0.13 82 / 0.4)" strokeWidth="0.5" />
+        <circle
+          cx={c}
+          cy={c}
+          r={c - 4}
+          fill={transparent ? "none" : "url(#bezel)"}
+          stroke={transparent ? "oklch(0.78 0.13 82 / 0.5)" : "none"}
+          strokeWidth={transparent ? 1.5 : 0}
+        />
+        <circle
+          cx={c}
+          cy={c}
+          r={c - 14}
+          fill={transparent ? "none" : "url(#dial)"}
+          stroke={transparent ? "oklch(0.78 0.13 82 / 0.25)" : "none"}
+          strokeWidth={transparent ? 0.8 : 0}
+        />
 
         {/* Hour markers */}
         {Array.from({ length: 12 }).map((_, i) => {
@@ -64,25 +84,28 @@ export function WatchFace({ size = 280 }: { size?: number }) {
           );
         })}
 
-        {/* Brand text */}
-        <text
-          x={c}
-          y={c - 30}
-          textAnchor="middle"
-          fill="oklch(0.86 0.09 85)"
-          style={{ font: '600 8px "Cormorant Garamond", serif', letterSpacing: "3px" }}
-        >
-          VINS
-        </text>
-        <text
-          x={c}
-          y={c + 38}
-          textAnchor="middle"
-          fill="oklch(0.72 0.025 80)"
-          style={{ font: '400 6px Inter, sans-serif', letterSpacing: "2px" }}
-        >
-          NEGOMBO
-        </text>
+        {!transparent && (
+          <>
+            <text
+              x={c}
+              y={c - 30}
+              textAnchor="middle"
+              fill="oklch(0.86 0.09 85)"
+              style={{ font: '600 8px "Cormorant Garamond", serif', letterSpacing: "3px" }}
+            >
+              VINS
+            </text>
+            <text
+              x={c}
+              y={c + 38}
+              textAnchor="middle"
+              fill="oklch(0.72 0.025 80)"
+              style={{ font: '400 6px Inter, sans-serif', letterSpacing: "2px" }}
+            >
+              NEGOMBO
+            </text>
+          </>
+        )}
 
         {/* Hour hand */}
         <g transform={`rotate(${hrDeg} ${c} ${c})`}>
