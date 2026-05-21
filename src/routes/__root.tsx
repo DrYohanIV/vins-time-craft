@@ -14,6 +14,8 @@ import { AuthProvider } from "@/lib/use-auth";
 import { CartProvider } from "@/lib/cart";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { BackgroundScene } from "@/components/background-scene";
+
 
 function NotFoundComponent() {
   return (
