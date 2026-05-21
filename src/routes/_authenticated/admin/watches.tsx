@@ -107,7 +107,17 @@ function AdminWatches() {
                 </td>
                 <td className="p-3 text-muted-foreground">{w.brand}</td>
                 <td className="p-3">{formatLKR(Number(w.price))}</td>
-                <td className="p-3">{w.stock}</td>
+                <td className="p-3">
+                  {w.stock === 0 ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-rose-500/20 text-rose-300">Out of stock</span>
+                  ) : w.stock <= LOW_STOCK_THRESHOLD ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-300">
+                      <AlertTriangle className="w-3 h-3" /> {w.stock} left
+                    </span>
+                  ) : (
+                    w.stock
+                  )}
+                </td>
                 <td className="p-3 text-right">
                   <button onClick={() => setEditing({ id: w.id, name: w.name, brand: w.brand, description: w.description ?? "", price: String(w.price), stock: String(w.stock), image_url: w.image_url ?? "", featured: w.featured })} className="p-2 hover:text-[var(--color-gold)]"><Pencil className="w-4 h-4" /></button>
                   <button onClick={() => remove(w.id)} className="p-2 hover:text-destructive"><Trash2 className="w-4 h-4" /></button>
