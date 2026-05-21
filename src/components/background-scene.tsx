@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { WatchFace } from "@/components/watch-face";
 
 /** A gear SVG used as a decorative floating element */
@@ -50,8 +51,43 @@ function Gear({ size = 120, opacity = 0.08 }: { size?: number; opacity?: number 
 }
 
 export function BackgroundScene() {
+  const watchRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY || 0;
+        const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const p = Math.min(1, y / max);
+        if (watchRef.current) {
+          // Translate + scale + rotate the centerpiece watch with scroll
+          const tx = p * 220; // px to the right
+          const ty = y * 0.35; // parallax down
+          const scale = 1 + p * 0.25;
+          const rot = p * 90; // degrees
+          watchRef.current.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale}) rotate(${rot}deg)`;
+          watchRef.current.style.opacity = String(0.35 - p * 0.15);
+        }
+        if (sceneRef.current) {
+          sceneRef.current.style.setProperty("--scroll-p", String(p));
+        }
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <div
+      ref={sceneRef}
       aria-hidden
       className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
     >
@@ -85,11 +121,13 @@ export function BackgroundScene() {
         </div>
       </div>
 
-      {/* Giant transparent live watch — centerpiece behind hero */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 mix-blend-screen">
-        <div className="float-slow" style={{ animationDuration: "16s" }}>
-          <WatchFace size={720} transparent />
-        </div>
+      {/* Giant transparent live watch — moves and rotates with scroll, hands spin continuously */}
+      <div
+        ref={watchRef}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mix-blend-screen will-change-transform"
+        style={{ opacity: 0.35, transition: "opacity 0.2s linear" }}
+      >
+        <WatchFace size={720} transparent animatedHands />
       </div>
 
       {/* Twinkling particles */}
