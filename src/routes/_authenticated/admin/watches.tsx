@@ -3,7 +3,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, AlertTriangle } from "lucide-react";
+
+const LOW_STOCK_THRESHOLD = 3;
 import { formatLKR } from "@/lib/cart";
 
 export const Route = createFileRoute("/_authenticated/admin/watches")({ component: AdminWatches });
