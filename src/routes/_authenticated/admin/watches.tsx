@@ -3,7 +3,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, AlertTriangle } from "lucide-react";
+
+const LOW_STOCK_THRESHOLD = 3;
 import { formatLKR } from "@/lib/cart";
 
 export const Route = createFileRoute("/_authenticated/admin/watches")({ component: AdminWatches });
@@ -61,6 +63,8 @@ function AdminWatches() {
     qc.invalidateQueries({ queryKey: ["watches"] });
   };
 
+  const lowStock = watches?.filter((w) => w.stock <= LOW_STOCK_THRESHOLD) ?? [];
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -69,6 +73,19 @@ function AdminWatches() {
           <Plus className="w-4 h-4" /> Add watch
         </button>
       </div>
+
+      {lowStock.length > 0 && (
+        <div className="glass rounded-2xl p-4 mb-4 border border-amber-500/40 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <div className="font-medium text-amber-300">Low stock alert</div>
+            <div className="text-muted-foreground mt-0.5">
+              {lowStock.length} watch{lowStock.length === 1 ? "" : "es"} at or below {LOW_STOCK_THRESHOLD} units:{" "}
+              {lowStock.map((w) => `${w.name} (${w.stock})`).join(", ")}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="glass rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
@@ -90,7 +107,17 @@ function AdminWatches() {
                 </td>
                 <td className="p-3 text-muted-foreground">{w.brand}</td>
                 <td className="p-3">{formatLKR(Number(w.price))}</td>
-                <td className="p-3">{w.stock}</td>
+                <td className="p-3">
+                  {w.stock === 0 ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-rose-500/20 text-rose-300">Out of stock</span>
+                  ) : w.stock <= LOW_STOCK_THRESHOLD ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-300">
+                      <AlertTriangle className="w-3 h-3" /> {w.stock} left
+                    </span>
+                  ) : (
+                    w.stock
+                  )}
+                </td>
                 <td className="p-3 text-right">
                   <button onClick={() => setEditing({ id: w.id, name: w.name, brand: w.brand, description: w.description ?? "", price: String(w.price), stock: String(w.stock), image_url: w.image_url ?? "", featured: w.featured })} className="p-2 hover:text-[var(--color-gold)]"><Pencil className="w-4 h-4" /></button>
                   <button onClick={() => remove(w.id)} className="p-2 hover:text-destructive"><Trash2 className="w-4 h-4" /></button>
