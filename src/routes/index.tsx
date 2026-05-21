@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Award, ShieldCheck, Sparkles } from "lucide-react";
 import heroImg from "@/assets/hero-watch.jpg";
 import { supabase } from "@/integrations/supabase/client";
-import { WatchFace } from "@/components/watch-face";
 import { WatchCard } from "@/components/watch-card";
+
 
 export const Route = createFileRoute("/")({
   component: Home,
