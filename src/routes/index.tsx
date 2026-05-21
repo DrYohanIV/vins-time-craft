@@ -117,10 +117,16 @@ function Home() {
   );
 }
 
-function LiveDate() {
+function LiveTime() {
+  const [t, setT] = useState(() => new Date());
+  useEffect(() => {
+    const i = setInterval(() => setT(new Date()), 1000);
+    return () => clearInterval(i);
+  }, []);
   return (
-    <div className="font-display text-lg text-[var(--color-gold-soft)] mt-1">
-      {new Date().toLocaleDateString("en-LK", { weekday: "long", day: "numeric", month: "long" })}
-    </div>
+    <span className="text-[var(--color-gold-soft)] tabular-nums">
+      {t.toLocaleTimeString("en-LK", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}
+    </span>
   );
 }
+
