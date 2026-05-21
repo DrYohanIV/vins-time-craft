@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Award, ShieldCheck, Sparkles } from "lucide-react";
 import heroImg from "@/assets/hero-watch.jpg";
