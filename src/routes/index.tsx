@@ -21,15 +21,15 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { data: featured } = useQuery({
     queryKey: ["featured-watches"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("watches")
-        .select("*")
-        .order("featured", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(6);
-      return data ?? [];
-    },
+    queryFn: async () => (await supabase.from("watches").select("*").order("featured", { ascending: false }).order("created_at", { ascending: false }).limit(6)).data ?? [],
+  });
+  const { data: banners } = useQuery({
+    queryKey: ["home-banners"],
+    queryFn: async () => (await supabase.from("banners").select("*").eq("active", true).order("sort_order")).data ?? [],
+  });
+  const { data: promos } = useQuery({
+    queryKey: ["home-promotions"],
+    queryFn: async () => (await supabase.from("promotions").select("*").eq("active", true).order("sort_order")).data ?? [],
   });
 
   return (
@@ -65,18 +65,45 @@ function Home() {
         {/* Hero image strip */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="glass rounded-3xl overflow-hidden relative">
-            <img
-              src={heroImg}
-              alt="Luxury gold wristwatch"
-              width={1920}
-              height={1080}
-              className="w-full h-[300px] sm:h-[420px] object-cover"
-            />
+            <img src={heroImg} alt="Luxury gold wristwatch" width={1920} height={1080} className="w-full h-[300px] sm:h-[420px] object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
           </div>
         </div>
       </section>
 
+      {/* Promotions strip */}
+      {promos && promos.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-16 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {promos.map((p) => (
+            <div key={p.id} className="glass rounded-2xl p-5">
+              <div className="text-xs uppercase tracking-[0.3em] text-[var(--color-gold-soft)] mb-2">Promotion</div>
+              <div className="font-display text-xl">{p.title}</div>
+              {p.subtitle && <div className="text-sm text-muted-foreground mt-1">{p.subtitle}</div>}
+              {p.cta_label && p.cta_url && (
+                <a href={p.cta_url} className="inline-block mt-3 text-sm text-[var(--color-gold)] hover:underline">{p.cta_label} →</a>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Banners */}
+      {banners && banners.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-16 space-y-5">
+          {banners.map((b) => (
+            <div key={b.id} className="glass rounded-3xl overflow-hidden relative">
+              {b.image_url && <img src={b.image_url} alt={b.title} className="w-full h-[260px] sm:h-[340px] object-cover" />}
+              <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent flex flex-col justify-center p-8 sm:p-12">
+                <h3 className="font-display text-3xl sm:text-4xl max-w-md">{b.title}</h3>
+                {b.subtitle && <p className="text-muted-foreground mt-2 max-w-md">{b.subtitle}</p>}
+                {b.cta_label && b.cta_url && (
+                  <a href={b.cta_url} className="mt-4 px-6 py-2.5 rounded-full btn-gold text-sm w-fit">{b.cta_label}</a>
+                )}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
 
       {/* Features */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-20 grid sm:grid-cols-3 gap-5">
@@ -120,15 +147,12 @@ function Home() {
 }
 
 function LiveTime() {
-  const [t, setT] = useState(() => new Date());
+  const [t, setT] = useState<string>("");
   useEffect(() => {
-    const i = setInterval(() => setT(new Date()), 1000);
+    const update = () => setT(new Date().toLocaleTimeString("en-LK", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }));
+    update();
+    const i = setInterval(update, 1000);
     return () => clearInterval(i);
   }, []);
-  return (
-    <span className="text-[var(--color-gold-soft)] tabular-nums">
-      {t.toLocaleTimeString("en-LK", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}
-    </span>
-  );
+  return <span className="text-[var(--color-gold-soft)] tabular-nums">{t || "--:--:--"}</span>;
 }
-

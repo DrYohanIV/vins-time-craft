@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Package, ShoppingBag, LayoutDashboard } from "lucide-react";
+import { Package, ShoppingBag, LayoutDashboard, MessageSquare, Megaphone, Tag, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminLayout });
 
@@ -47,6 +47,10 @@ function AdminLayout() {
     { to: "/admin", label: "Overview", icon: LayoutDashboard },
     { to: "/admin/watches", label: "Watches", icon: Package },
     { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
+    { to: "/admin/messages", label: "Messages", icon: MessageSquare },
+    { to: "/admin/promotions", label: "Promotions", icon: Megaphone },
+    { to: "/admin/discounts", label: "Discounts", icon: Tag },
+    { to: "/admin/banners", label: "Banners", icon: ImageIcon },
   ];
 
   return (
@@ -55,7 +59,7 @@ function AdminLayout() {
         <div className="text-xs uppercase tracking-[0.3em] text-[var(--color-gold-soft)]">Admin</div>
         <h1 className="font-display text-4xl mt-1">Vins Watch Console</h1>
       </div>
-      <div className="glass rounded-2xl p-1.5 inline-flex gap-1 mb-6">
+      <div className="glass rounded-2xl p-1.5 inline-flex gap-1 mb-6 flex-wrap">
         {tabs.map((t) => {
           const active = pathname === t.to;
           return (
