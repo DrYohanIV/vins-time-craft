@@ -14,6 +14,8 @@ import { AuthProvider } from "@/lib/use-auth";
 import { CartProvider } from "@/lib/cart";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { BackgroundScene } from "@/components/background-scene";
+
 
 function NotFoundComponent() {
   return (
@@ -93,7 +95,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
-          <div className="min-h-screen flex flex-col">
+          <BackgroundScene />
+          <div className="min-h-screen flex flex-col relative">
             <SiteHeader />
             <main className="flex-1">
               <Outlet />
@@ -102,6 +105,7 @@ function RootComponent() {
           </div>
           <Toaster theme="dark" position="top-right" />
         </CartProvider>
+
       </AuthProvider>
     </QueryClientProvider>
   );

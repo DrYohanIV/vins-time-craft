@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Award, ShieldCheck, Sparkles } from "lucide-react";
 import heroImg from "@/assets/hero-watch.jpg";
 import { supabase } from "@/integrations/supabase/client";
-import { WatchFace } from "@/components/watch-face";
 import { WatchCard } from "@/components/watch-card";
+
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -34,44 +36,35 @@ function Home() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-24 grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs text-[var(--color-gold-soft)] mb-6">
-              <Sparkles className="w-3 h-3" /> Est. Negombo · Luxury Timepieces
-            </div>
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.05]">
-              Time, <span className="text-gradient-gold italic">refined</span>
-              <br />in matte gold.
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-md">
-              A curated collection of precision timepieces. Hand-picked by Vins Watch — Negombo's
-              destination for fine horology.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/shop" className="px-7 py-3 rounded-full btn-gold inline-flex items-center gap-2">
-                Shop collection <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link to="/contact" className="px-7 py-3 rounded-full btn-glass">
-                Visit our store
-              </Link>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-28 text-center flex flex-col items-center">
+          <div className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs text-[var(--color-gold-soft)] mb-8 animate-fade-in">
+            <Sparkles className="w-3 h-3" /> Est. Negombo · Luxury Timepieces
+          </div>
+          <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl leading-[1.02] max-w-4xl">
+            Time, <span className="shimmer-gold italic">refined</span>
+            <br />in matte gold.
+          </h1>
+          <p className="mt-8 text-lg text-muted-foreground max-w-xl">
+            A curated collection of precision timepieces. Hand-picked by Vins Watch — Negombo's
+            destination for fine horology.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3 justify-center">
+            <Link to="/shop" className="px-8 py-3.5 rounded-full btn-gold inline-flex items-center gap-2">
+              Shop collection <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link to="/contact" className="px-8 py-3.5 rounded-full btn-glass">
+              Visit our store
+            </Link>
           </div>
 
-          <div className="relative flex justify-center">
-            <div className="absolute inset-0 -z-10 blur-3xl opacity-40" style={{ background: "var(--gradient-gold)" }} />
-            <div className="glass-strong rounded-3xl p-8 flex flex-col items-center gap-6">
-              <WatchFace size={280} />
-              <div className="text-center">
-                <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Live time · Negombo</div>
-                <LiveDate />
-              </div>
-            </div>
+          <div className="mt-6 text-xs uppercase tracking-[0.4em] text-muted-foreground">
+            Live · Negombo · <LiveTime />
           </div>
         </div>
 
         {/* Hero image strip */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="glass rounded-3xl overflow-hidden">
+          <div className="glass rounded-3xl overflow-hidden relative">
             <img
               src={heroImg}
               alt="Luxury gold wristwatch"
@@ -79,9 +72,11 @@ function Home() {
               height={1080}
               className="w-full h-[300px] sm:h-[420px] object-cover"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
           </div>
         </div>
       </section>
+
 
       {/* Features */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-20 grid sm:grid-cols-3 gap-5">
@@ -124,10 +119,16 @@ function Home() {
   );
 }
 
-function LiveDate() {
+function LiveTime() {
+  const [t, setT] = useState(() => new Date());
+  useEffect(() => {
+    const i = setInterval(() => setT(new Date()), 1000);
+    return () => clearInterval(i);
+  }, []);
   return (
-    <div className="font-display text-lg text-[var(--color-gold-soft)] mt-1">
-      {new Date().toLocaleDateString("en-LK", { weekday: "long", day: "numeric", month: "long" })}
-    </div>
+    <span className="text-[var(--color-gold-soft)] tabular-nums">
+      {t.toLocaleTimeString("en-LK", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}
+    </span>
   );
 }
+
