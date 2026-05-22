@@ -1,12 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { MapPin, Phone } from "lucide-react";
+import { VinsLogo } from "@/components/vins-logo";
 
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-[var(--color-border)]">
       <div className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-10">
         <div>
-          <div className="font-display text-2xl text-gradient-gold mb-2">Vins Watch</div>
+          <div className="flex items-center gap-2.5 mb-3">
+            <VinsLogo size={32} />
+            <div className="font-display text-2xl text-gradient-gold">Vins Watch</div>
+          </div>
           <p className="text-sm text-muted-foreground">
             Crafted timepieces for those who measure life in moments, not minutes.
           </p>
