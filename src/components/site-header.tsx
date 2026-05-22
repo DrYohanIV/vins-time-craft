@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ShoppingBag, User as UserIcon, LogOut, Shield } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/use-auth";
+import { VinsLogo } from "@/components/vins-logo";
 
 export function SiteHeader() {
   const { count } = useCart();
@@ -10,11 +11,13 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 glass border-b border-[var(--color-border)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full" style={{ background: "var(--gradient-gold)" }} />
+        <Link to="/" className="flex items-center gap-2.5">
+          <VinsLogo size={34} />
           <div className="leading-tight">
-            <div className="font-display text-xl text-gradient-gold font-semibold">Vins Watch</div>
-            <div className="text-[10px] tracking-[0.25em] text-muted-foreground -mt-1">NEGOMBO</div>
+            <div className="font-display text-xl text-gradient-gold font-semibold tracking-wide">
+              <span className="italic">V</span>ins Watch
+            </div>
+            <div className="text-[10px] tracking-[0.3em] text-[var(--color-stone)] -mt-1">EST. 1980 · NEGOMBO</div>
           </div>
         </Link>
 

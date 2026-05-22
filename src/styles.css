@@ -35,6 +35,9 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-gold-deep: var(--gold-deep);
+  --color-cream: var(--cream);
+  --color-stone: var(--stone);
+  --color-espresso: var(--espresso);
 
   --font-display: "Cormorant Garamond", "Times New Roman", serif;
   --font-sans: "Inter", system-ui, sans-serif;
@@ -43,42 +46,48 @@
 :root {
   --radius: 0.75rem;
 
-  /* Deep luxury dark */
-  --background: oklch(0.16 0.012 60);
-  --foreground: oklch(0.95 0.02 85);
+  /* Vins Watch brand: #5C554C espresso · #AAA28D stone · #BDAA8A tan · #E0DCD0 cream */
+  --background: oklch(0.17 0.006 70);
+  --foreground: oklch(0.92 0.012 80);
 
-  --card: oklch(0.22 0.015 65 / 55%);
-  --card-foreground: oklch(0.95 0.02 85);
-  --popover: oklch(0.2 0.015 65);
-  --popover-foreground: oklch(0.95 0.02 85);
+  --card: oklch(0.24 0.008 70 / 70%);
+  --card-foreground: oklch(0.92 0.012 80);
+  --popover: oklch(0.2 0.008 70);
+  --popover-foreground: oklch(0.92 0.012 80);
 
-  /* Matte gold */
-  --gold: oklch(0.78 0.13 82);
-  --gold-soft: oklch(0.86 0.09 85);
-  --gold-deep: oklch(0.6 0.12 70);
+  --espresso: oklch(0.39 0.012 75);
+  --stone:    oklch(0.69 0.018 80);
+  --tan:      oklch(0.74 0.035 80);
+  --cream:    oklch(0.89 0.012 85);
 
-  --primary: var(--gold);
-  --primary-foreground: oklch(0.16 0.012 60);
+  --gold: var(--tan);
+  --gold-soft: var(--cream);
+  --gold-deep: var(--stone);
 
-  --secondary: oklch(0.28 0.018 70 / 60%);
-  --secondary-foreground: oklch(0.95 0.02 85);
-  --muted: oklch(0.26 0.014 65 / 50%);
-  --muted-foreground: oklch(0.72 0.025 80);
-  --accent: oklch(0.32 0.04 75 / 70%);
-  --accent-foreground: oklch(0.95 0.02 85);
+  --primary: var(--tan);
+  --primary-foreground: oklch(0.17 0.006 70);
 
-  --destructive: oklch(0.58 0.2 25);
+  --secondary: oklch(0.3 0.01 70 / 60%);
+  --secondary-foreground: oklch(0.92 0.012 80);
+  --muted: oklch(0.26 0.008 70 / 55%);
+  --muted-foreground: oklch(0.72 0.015 78);
+  --accent: oklch(0.34 0.014 72 / 70%);
+  --accent-foreground: oklch(0.92 0.012 80);
+
+  --destructive: oklch(0.55 0.18 28);
   --destructive-foreground: oklch(0.98 0 0);
 
-  --border: oklch(0.78 0.13 82 / 18%);
-  --input: oklch(0.78 0.13 82 / 12%);
-  --ring: oklch(0.78 0.13 82 / 60%);
+  --border: oklch(0.74 0.035 80 / 18%);
+  --input: oklch(0.74 0.035 80 / 12%);
+  --ring: oklch(0.74 0.035 80 / 55%);
 
-  --gradient-gold: linear-gradient(135deg, oklch(0.86 0.09 85), oklch(0.65 0.13 70));
-  --gradient-bg: radial-gradient(ellipse at top, oklch(0.22 0.04 75 / 0.6), oklch(0.12 0.01 60) 65%);
+  --gradient-gold: linear-gradient(135deg, var(--cream), var(--tan) 55%, var(--stone));
+  --gradient-bg: radial-gradient(ellipse at top, oklch(0.26 0.012 75 / 0.55), oklch(0.07 0.004 70) 70%);
 
-  --shadow-gold: 0 10px 40px -10px oklch(0.78 0.13 82 / 0.35);
-  --shadow-glass: 0 8px 32px 0 oklch(0 0 0 / 0.4);
+  /* Deep dramatic shadows */
+  --shadow-gold: 0 20px 55px -14px oklch(0 0 0 / 0.75), 0 4px 14px -4px oklch(0.74 0.035 80 / 0.3);
+  --shadow-glass: 0 28px 70px -14px oklch(0 0 0 / 0.8), 0 10px 24px -10px oklch(0 0 0 / 0.55);
+  --shadow-deep: 0 50px 110px -24px oklch(0 0 0 / 0.9), inset 0 1px 0 oklch(1 0 0 / 0.04);
 }
 
 @layer base {
@@ -102,19 +111,19 @@
 
 @layer components {
   .glass {
-    background: linear-gradient(135deg, oklch(1 0 0 / 0.08), oklch(1 0 0 / 0.02));
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    border: 1px solid oklch(0.78 0.13 82 / 0.2);
+    background: linear-gradient(135deg, oklch(0 0 0 / 0.45), oklch(0 0 0 / 0.25));
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    border: 1px solid oklch(0.74 0.035 80 / 0.18);
     box-shadow: var(--shadow-glass);
   }
 
   .glass-strong {
-    background: linear-gradient(135deg, oklch(1 0 0 / 0.12), oklch(1 0 0 / 0.04));
-    backdrop-filter: blur(28px) saturate(160%);
-    -webkit-backdrop-filter: blur(28px) saturate(160%);
-    border: 1px solid oklch(0.78 0.13 82 / 0.28);
-    box-shadow: var(--shadow-glass), inset 0 1px 0 oklch(1 0 0 / 0.08);
+    background: linear-gradient(135deg, oklch(0 0 0 / 0.6), oklch(0 0 0 / 0.35));
+    backdrop-filter: blur(30px) saturate(160%);
+    -webkit-backdrop-filter: blur(30px) saturate(160%);
+    border: 1px solid oklch(0.74 0.035 80 / 0.25);
+    box-shadow: var(--shadow-deep);
   }
 
   .text-gradient-gold {
