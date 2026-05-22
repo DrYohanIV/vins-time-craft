@@ -15,6 +15,7 @@ function WatchDetail() {
   const navigate = useNavigate();
   const { add } = useCart();
   const [qty, setQty] = useState(1);
+  const [activeImg, setActiveImg] = useState(0);
 
   const { data: watch, isLoading } = useQuery({
     queryKey: ["watch", id],
@@ -28,15 +29,32 @@ function WatchDetail() {
   if (!watch) return <div className="text-center py-20 text-muted-foreground">Watch not found.</div>;
 
   const inStock = watch.stock > 0;
+  const gallery = [watch.image_url, ...((watch.images as string[] | null) ?? [])].filter(Boolean) as string[];
+  const active = gallery[Math.min(activeImg, Math.max(0, gallery.length - 1))];
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 grid md:grid-cols-2 gap-10">
-      <div className="glass-strong rounded-3xl overflow-hidden aspect-square">
-        {watch.image_url ? (
-          <img src={watch.image_url} alt={watch.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="w-48 h-48 rounded-full" style={{ background: "var(--gradient-gold)", opacity: 0.4 }} />
+      <div>
+        <div className="glass-strong rounded-3xl overflow-hidden aspect-square">
+          {active ? (
+            <img src={active} alt={watch.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-48 h-48 rounded-full" style={{ background: "var(--gradient-gold)", opacity: 0.4 }} />
+            </div>
+          )}
+        </div>
+        {gallery.length > 1 && (
+          <div className="mt-3 grid grid-cols-5 gap-2">
+            {gallery.map((url, i) => (
+              <button
+                key={url + i}
+                onClick={() => setActiveImg(i)}
+                className={`aspect-square rounded-xl overflow-hidden glass transition ${i === activeImg ? "ring-2 ring-[var(--color-gold)]" : "opacity-70 hover:opacity-100"}`}
+              >
+                <img src={url} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
         )}
       </div>
