@@ -15,6 +15,7 @@ function WatchDetail() {
   const navigate = useNavigate();
   const { add } = useCart();
   const [qty, setQty] = useState(1);
+  const [activeImg, setActiveImg] = useState(0);
 
   const { data: watch, isLoading } = useQuery({
     queryKey: ["watch", id],
