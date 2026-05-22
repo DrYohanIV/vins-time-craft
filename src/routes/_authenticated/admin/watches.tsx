@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Star, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, AlertTriangle, Upload, X, ImagePlus, Loader2 } from "lucide-react";
 
 const LOW_STOCK_THRESHOLD = 3;
 import { formatLKR } from "@/lib/cart";
@@ -18,10 +18,23 @@ type WatchForm = {
   price: string;
   stock: string;
   image_url: string;
+  images: string[];
   featured: boolean;
 };
 
-const emptyForm: WatchForm = { name: "", brand: "", description: "", price: "", stock: "1", image_url: "", featured: false };
+const emptyForm: WatchForm = { name: "", brand: "", description: "", price: "", stock: "1", image_url: "", images: [], featured: false };
+
+async function uploadFile(file: File): Promise<string> {
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const path = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("watch-images").upload(path, file, {
+    cacheControl: "3600",
+    contentType: file.type,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from("watch-images").getPublicUrl(path);
+  return data.publicUrl;
+}
 
 function AdminWatches() {
   const qc = useQueryClient();
@@ -41,6 +54,7 @@ function AdminWatches() {
       price: Number(editing.price),
       stock: Number(editing.stock),
       image_url: editing.image_url || null,
+      images: editing.images,
       featured: editing.featured,
     };
     const { error } = editing.id
@@ -90,7 +104,7 @@ function AdminWatches() {
       <div className="glass rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
           <thead className="text-left text-muted-foreground border-b border-[var(--color-border)]">
-            <tr><th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3"></th></tr>
+            <tr><th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Images</th><th className="p-3"></th></tr>
           </thead>
           <tbody>
             {watches?.map((w) => (
@@ -118,14 +132,15 @@ function AdminWatches() {
                     w.stock
                   )}
                 </td>
+                <td className="p-3 text-muted-foreground">{1 + (w.images?.length ?? 0)}</td>
                 <td className="p-3 text-right">
-                  <button onClick={() => setEditing({ id: w.id, name: w.name, brand: w.brand, description: w.description ?? "", price: String(w.price), stock: String(w.stock), image_url: w.image_url ?? "", featured: w.featured })} className="p-2 hover:text-[var(--color-gold)]"><Pencil className="w-4 h-4" /></button>
+                  <button onClick={() => setEditing({ id: w.id, name: w.name, brand: w.brand, description: w.description ?? "", price: String(w.price), stock: String(w.stock), image_url: w.image_url ?? "", images: w.images ?? [], featured: w.featured })} className="p-2 hover:text-[var(--color-gold)]"><Pencil className="w-4 h-4" /></button>
                   <button onClick={() => remove(w.id)} className="p-2 hover:text-destructive"><Trash2 className="w-4 h-4" /></button>
                 </td>
               </tr>
             ))}
             {!watches?.length && (
-              <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No watches yet. Add your first.</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No watches yet. Add your first.</td></tr>
             )}
           </tbody>
         </table>
@@ -133,7 +148,7 @@ function AdminWatches() {
 
       {editing && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-auto" onClick={() => setEditing(null)}>
-          <form onClick={(e) => e.stopPropagation()} onSubmit={save} className="glass-strong rounded-3xl p-6 w-full max-w-lg space-y-3 my-auto">
+          <form onClick={(e) => e.stopPropagation()} onSubmit={save} className="glass-strong rounded-3xl p-6 w-full max-w-2xl space-y-3 my-auto">
             <h3 className="font-display text-2xl">{editing.id ? "Edit watch" : "Add watch"}</h3>
             <Input label="Name" value={editing.name} onChange={(v) => setEditing({ ...editing, name: v })} />
             <Input label="Brand" value={editing.brand} onChange={(v) => setEditing({ ...editing, brand: v })} />
@@ -142,7 +157,10 @@ function AdminWatches() {
               <Input label="Price (LKR)" type="number" value={editing.price} onChange={(v) => setEditing({ ...editing, price: v })} />
               <Input label="Stock" type="number" value={editing.stock} onChange={(v) => setEditing({ ...editing, stock: v })} />
             </div>
-            <Input label="Image URL" value={editing.image_url} onChange={(v) => setEditing({ ...editing, image_url: v })} required={false} placeholder="https://…" />
+
+            <MainImageField value={editing.image_url} onChange={(v) => setEditing({ ...editing, image_url: v })} />
+            <GalleryField values={editing.images} onChange={(v) => setEditing({ ...editing, images: v })} />
+
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={editing.featured} onChange={(e) => setEditing({ ...editing, featured: e.target.checked })} />
               Feature on homepage
@@ -154,6 +172,122 @@ function AdminWatches() {
           </form>
         </div>
       )}
+    </div>
+  );
+}
+
+function MainImageField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+
+  const pick = async (file: File) => {
+    setBusy(true);
+    try {
+      const url = await uploadFile(file);
+      onChange(url);
+      toast.success("Main image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Main image</div>
+      <div className="flex items-start gap-3">
+        <div className="relative w-28 h-28 rounded-xl overflow-hidden shrink-0 glass flex items-center justify-center">
+          {value ? (
+            <>
+              <img src={value} alt="" className="w-full h-full object-cover" />
+              <button type="button" onClick={() => onChange("")} className="absolute top-1 right-1 bg-black/70 rounded-full p-1 hover:bg-black">
+                <X className="w-3 h-3" />
+              </button>
+            </>
+          ) : (
+            <ImagePlus className="w-6 h-6 text-muted-foreground" />
+          )}
+        </div>
+        <div className="flex-1 space-y-2">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => ref.current?.click()}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full btn-glass text-sm disabled:opacity-50"
+          >
+            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+            {value ? "Replace image" : "Upload image"}
+          </button>
+          <input
+            ref={ref}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(e) => e.target.files?.[0] && pick(e.target.files[0])}
+          />
+          <input
+            type="url"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="…or paste an image URL"
+            className="w-full glass rounded-xl px-3 py-2 text-sm outline-none focus:border-[var(--color-gold)]"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GalleryField({ values, onChange }: { values: string[]; onChange: (v: string[]) => void }) {
+  const [busy, setBusy] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+
+  const pick = async (files: FileList) => {
+    setBusy(true);
+    try {
+      const uploaded = await Promise.all(Array.from(files).map(uploadFile));
+      onChange([...values, ...uploaded]);
+      toast.success(`${uploaded.length} image${uploaded.length === 1 ? "" : "s"} added`);
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1 flex items-center justify-between">
+        <span>Gallery (additional images)</span>
+        <span className="text-[10px] opacity-70">{values.length} added</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {values.map((url, i) => (
+          <div key={url + i} className="relative w-20 h-20 rounded-lg overflow-hidden glass">
+            <img src={url} alt="" className="w-full h-full object-cover" />
+            <button type="button" onClick={() => onChange(values.filter((_, j) => j !== i))} className="absolute top-0.5 right-0.5 bg-black/70 rounded-full p-1 hover:bg-black">
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => ref.current?.click()}
+          className="w-20 h-20 rounded-lg glass flex items-center justify-center hover:border-[var(--color-gold)] disabled:opacity-50"
+        >
+          {busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5 text-muted-foreground" />}
+        </button>
+        <input
+          ref={ref}
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          onChange={(e) => e.target.files?.length && pick(e.target.files)}
+        />
+      </div>
     </div>
   );
 }
