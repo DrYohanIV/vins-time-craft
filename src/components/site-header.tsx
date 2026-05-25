@@ -24,6 +24,7 @@ export function SiteHeader() {
         <nav className="hidden md:flex items-center gap-7 text-sm">
           <Link to="/" className="hover:text-[var(--color-gold-soft)] transition-colors" activeProps={{ className: "text-[var(--color-gold-soft)]" }}>Home</Link>
           <Link to="/shop" className="hover:text-[var(--color-gold-soft)] transition-colors" activeProps={{ className: "text-[var(--color-gold-soft)]" }}>Shop</Link>
+          <Link to="/about" className="hover:text-[var(--color-gold-soft)] transition-colors" activeProps={{ className: "text-[var(--color-gold-soft)]" }}>About</Link>
           <Link to="/contact" className="hover:text-[var(--color-gold-soft)] transition-colors" activeProps={{ className: "text-[var(--color-gold-soft)]" }}>Contact</Link>
           {isAdmin && (
             <Link to="/admin" className="flex items-center gap-1 text-[var(--color-gold-soft)]">
