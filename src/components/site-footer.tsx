@@ -23,6 +23,7 @@ export function SiteFooter() {
         <div className="text-sm space-y-2">
           <h4 className="font-display text-lg mb-3 text-[var(--color-gold-soft)]">Explore</h4>
           <Link to="/shop" className="block hover:text-[var(--color-gold-soft)]">Shop watches</Link>
+          <Link to="/about" className="block hover:text-[var(--color-gold-soft)]">About us</Link>
           <Link to="/contact" className="block hover:text-[var(--color-gold-soft)]">Contact</Link>
           <Link to="/account" className="block hover:text-[var(--color-gold-soft)]">My account</Link>
         </div>
