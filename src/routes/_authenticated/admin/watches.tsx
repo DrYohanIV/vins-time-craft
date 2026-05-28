@@ -44,6 +44,23 @@ function AdminWatches() {
     queryFn: async () => (await supabase.from("watches").select("*").order("created_at", { ascending: false })).data ?? [],
   });
   const [editing, setEditing] = useState<WatchForm | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    if (!watches) return [];
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return watches;
+    return watches.filter(
+      (w) =>
+        w.name.toLowerCase().includes(q) ||
+        w.brand.toLowerCase().includes(q)
+    );
+  }, [watches, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,11 +99,23 @@ function AdminWatches() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
         <h2 className="font-display text-2xl">Watches</h2>
-        <button onClick={() => setEditing({ ...emptyForm })} className="px-4 py-2 rounded-full btn-gold text-sm inline-flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add watch
-        </button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+              placeholder="Search watches or brands…"
+              className="w-full glass rounded-full pl-9 pr-4 py-2 text-sm outline-none focus:border-[var(--color-gold)]"
+            />
+          </div>
+          <button onClick={() => setEditing({ ...emptyForm })} className="px-4 py-2 rounded-full btn-gold text-sm inline-flex items-center gap-2 shrink-0">
+            <Plus className="w-4 h-4" /> Add watch
+          </button>
+        </div>
       </div>
 
       {lowStock.length > 0 && (
@@ -108,7 +137,7 @@ function AdminWatches() {
             <tr><th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Images</th><th className="p-3"></th></tr>
           </thead>
           <tbody>
-            {watches?.map((w) => (
+            {paginated.map((w) => (
               <tr key={w.id} className="border-b border-[var(--color-border)] last:border-0">
                 <td className="p-3">
                   <div className="flex items-center gap-3">
@@ -140,37 +169,43 @@ function AdminWatches() {
                 </td>
               </tr>
             ))}
-            {!watches?.length && (
-              <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No watches yet. Add your first.</td></tr>
+            {!paginated.length && (
+              <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{searchQuery ? "No watches match your search." : "No watches yet. Add your first."}</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {editing && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-auto" onClick={() => setEditing(null)}>
-          <form onClick={(e) => e.stopPropagation()} onSubmit={save} className="glass-strong rounded-3xl p-6 w-full max-w-2xl space-y-3 my-auto">
-            <h3 className="font-display text-2xl">{editing.id ? "Edit watch" : "Add watch"}</h3>
-            <Input label="Name" value={editing.name} onChange={(v) => setEditing({ ...editing, name: v })} />
-            <Input label="Brand" value={editing.brand} onChange={(v) => setEditing({ ...editing, brand: v })} />
-            <Input label="Description" multiline value={editing.description} onChange={(v) => setEditing({ ...editing, description: v })} required={false} />
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Price (LKR)" type="number" value={editing.price} onChange={(v) => setEditing({ ...editing, price: v })} />
-              <Input label="Stock" type="number" value={editing.stock} onChange={(v) => setEditing({ ...editing, stock: v })} />
-            </div>
-
-            <MainImageField value={editing.image_url} onChange={(v) => setEditing({ ...editing, image_url: v })} />
-            <GalleryField values={editing.images} onChange={(v) => setEditing({ ...editing, images: v })} />
-
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={editing.featured} onChange={(e) => setEditing({ ...editing, featured: e.target.checked })} />
-              Feature on homepage
-            </label>
-            <div className="flex gap-2 pt-2">
-              <button type="button" onClick={() => setEditing(null)} className="flex-1 py-2.5 rounded-full btn-glass">Cancel</button>
-              <button className="flex-1 py-2.5 rounded-full btn-gold">{editing.id ? "Save" : "Add watch"}</button>
-            </div>
-          </form>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4 text-sm">
+          <div className="text-muted-foreground">
+            Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length}
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 rounded-lg glass text-sm disabled:opacity-40 hover:bg-white/5"
+            >
+              Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`w-8 h-8 rounded-lg text-sm ${p === currentPage ? "btn-gold" : "glass hover:bg-white/5"}`}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 rounded-lg glass text-sm disabled:opacity-40 hover:bg-white/5"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>
