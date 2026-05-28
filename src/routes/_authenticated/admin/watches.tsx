@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Star, AlertTriangle, Upload, X, ImagePlus, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, AlertTriangle, Upload, X, ImagePlus, Loader2, Search } from "lucide-react";
 
 const LOW_STOCK_THRESHOLD = 3;
+const PAGE_SIZE = 10;
 import { formatLKR } from "@/lib/cart";
 
 export const Route = createFileRoute("/_authenticated/admin/watches")({ component: AdminWatches });
