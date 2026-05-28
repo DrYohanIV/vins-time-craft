@@ -208,6 +208,33 @@ function AdminWatches() {
           </div>
         </div>
       )}
+
+      {editing && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-auto" onClick={() => setEditing(null)}>
+          <form onClick={(e) => e.stopPropagation()} onSubmit={save} className="glass-strong rounded-3xl p-6 w-full max-w-2xl space-y-3 my-auto">
+            <h3 className="font-display text-2xl">{editing.id ? "Edit watch" : "Add watch"}</h3>
+            <Input label="Name" value={editing.name} onChange={(v) => setEditing({ ...editing, name: v })} />
+            <Input label="Brand" value={editing.brand} onChange={(v) => setEditing({ ...editing, brand: v })} />
+            <Input label="Description" multiline value={editing.description} onChange={(v) => setEditing({ ...editing, description: v })} required={false} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Price (LKR)" type="number" value={editing.price} onChange={(v) => setEditing({ ...editing, price: v })} />
+              <Input label="Stock" type="number" value={editing.stock} onChange={(v) => setEditing({ ...editing, stock: v })} />
+            </div>
+
+            <MainImageField value={editing.image_url} onChange={(v) => setEditing({ ...editing, image_url: v })} />
+            <GalleryField values={editing.images} onChange={(v) => setEditing({ ...editing, images: v })} />
+
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={editing.featured} onChange={(e) => setEditing({ ...editing, featured: e.target.checked })} />
+              Feature on homepage
+            </label>
+            <div className="flex gap-2 pt-2">
+              <button type="button" onClick={() => setEditing(null)} className="flex-1 py-2.5 rounded-full btn-glass">Cancel</button>
+              <button className="flex-1 py-2.5 rounded-full btn-gold">{editing.id ? "Save" : "Add watch"}</button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
