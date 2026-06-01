@@ -50,41 +50,30 @@ function Checkout() {
     }
     setSubmitting(true);
     try {
-      const { data: order, error: orderErr } = await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
+      await placeOrderFn({
+        data: {
           customer_name: form.name,
           customer_phone: form.phone,
           customer_address: form.address,
           notes: form.notes || null,
-          total,
           payment_method: payment,
-          status: "pending",
-        })
-        .select()
-        .single();
-      if (orderErr) throw orderErr;
-
-      const orderItems = items.map((i) => ({
-        order_id: order.id,
-        watch_id: i.id,
-        watch_name: i.name,
-        unit_price: i.price,
-        quantity: i.quantity,
-      }));
-      const { error: itemsErr } = await supabase.from("order_items").insert(orderItems);
-      if (itemsErr) throw itemsErr;
+          items: items.map((i) => ({ watch_id: i.id, quantity: i.quantity })),
+        },
+      });
 
       // Save profile details for next time
-      await supabase.from("profiles").update({ full_name: form.name, phone: form.phone, address: form.address }).eq("id", user.id);
+      await supabase
+        .from("profiles")
+        .update({ full_name: form.name, phone: form.phone, address: form.address })
+        .eq("id", user.id);
 
       clear();
       toast.success("Order placed! We'll be in touch.");
       navigate({ to: "/account" });
     } catch (err) {
       console.error(err);
-      toast.error("Couldn't place order. Try again.");
+      const msg = err instanceof Error ? err.message : "Couldn't place order. Try again.";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
