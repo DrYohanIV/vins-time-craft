@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useCart, formatLKR } from "@/lib/cart";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { placeOrder as placeOrderFn } from "@/lib/orders.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({ component: Checkout });
