@@ -28,6 +28,7 @@ import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminDiscountsRouteImport } from './routes/_authenticated/admin/discounts'
 import { Route as AuthenticatedAdminCollectionsRouteImport } from './routes/_authenticated/admin/collections'
 import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenticated/admin/brands'
+import { Route as AuthenticatedAdminBrandCategoriesRouteImport } from './routes/_authenticated/admin/brand-categories'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated/admin/banners'
 
 const ShopRoute = ShopRouteImport.update({
@@ -131,6 +132,12 @@ const AuthenticatedAdminBrandsRoute =
     path: '/brands',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminBrandCategoriesRoute =
+  AuthenticatedAdminBrandCategoriesRouteImport.update({
+    id: '/brand-categories',
+    path: '/brand-categories',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBannersRoute =
   AuthenticatedAdminBannersRouteImport.update({
     id: '/banners',
@@ -150,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/watch/$id': typeof WatchIdRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
+  '/admin/brand-categories': typeof AuthenticatedAdminBrandCategoriesRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/admin/collections': typeof AuthenticatedAdminCollectionsRoute
   '/admin/discounts': typeof AuthenticatedAdminDiscountsRoute
@@ -170,6 +178,7 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountRoute
   '/watch/$id': typeof WatchIdRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
+  '/admin/brand-categories': typeof AuthenticatedAdminBrandCategoriesRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/admin/collections': typeof AuthenticatedAdminCollectionsRoute
   '/admin/discounts': typeof AuthenticatedAdminDiscountsRoute
@@ -193,6 +202,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/watch/$id': typeof WatchIdRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
+  '/_authenticated/admin/brand-categories': typeof AuthenticatedAdminBrandCategoriesRoute
   '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/_authenticated/admin/collections': typeof AuthenticatedAdminCollectionsRoute
   '/_authenticated/admin/discounts': typeof AuthenticatedAdminDiscountsRoute
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/watch/$id'
     | '/admin/banners'
+    | '/admin/brand-categories'
     | '/admin/brands'
     | '/admin/collections'
     | '/admin/discounts'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/watch/$id'
     | '/admin/banners'
+    | '/admin/brand-categories'
     | '/admin/brands'
     | '/admin/collections'
     | '/admin/discounts'
@@ -258,6 +270,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/watch/$id'
     | '/_authenticated/admin/banners'
+    | '/_authenticated/admin/brand-categories'
     | '/_authenticated/admin/brands'
     | '/_authenticated/admin/collections'
     | '/_authenticated/admin/discounts'
@@ -415,6 +428,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBrandsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/brand-categories': {
+      id: '/_authenticated/admin/brand-categories'
+      path: '/brand-categories'
+      fullPath: '/admin/brand-categories'
+      preLoaderRoute: typeof AuthenticatedAdminBrandCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/banners': {
       id: '/_authenticated/admin/banners'
       path: '/banners'
@@ -427,6 +447,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
+  AuthenticatedAdminBrandCategoriesRoute: typeof AuthenticatedAdminBrandCategoriesRoute
   AuthenticatedAdminBrandsRoute: typeof AuthenticatedAdminBrandsRoute
   AuthenticatedAdminCollectionsRoute: typeof AuthenticatedAdminCollectionsRoute
   AuthenticatedAdminDiscountsRoute: typeof AuthenticatedAdminDiscountsRoute
@@ -439,6 +460,8 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
+  AuthenticatedAdminBrandCategoriesRoute:
+    AuthenticatedAdminBrandCategoriesRoute,
   AuthenticatedAdminBrandsRoute: AuthenticatedAdminBrandsRoute,
   AuthenticatedAdminCollectionsRoute: AuthenticatedAdminCollectionsRoute,
   AuthenticatedAdminDiscountsRoute: AuthenticatedAdminDiscountsRoute,
@@ -480,3 +503,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

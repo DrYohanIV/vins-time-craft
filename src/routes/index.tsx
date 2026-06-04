@@ -129,6 +129,14 @@ function Home() {
   );
 }
 
+const BANNER_HEIGHT: Record<string, string> = {
+  small: "h-[320px] sm:h-[400px]",
+  medium: "h-[400px] sm:h-[500px] lg:h-[600px]",
+  large: "h-[500px] sm:h-[600px] lg:h-[720px]",
+  full: "h-[80vh] sm:h-[85vh]",
+  tall: "h-[600px] sm:h-[700px] lg:h-[800px]",
+};
+
 function BannerCarousel({ banners }: { banners: any[] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selected, setSelected] = useState(0);
@@ -144,34 +152,36 @@ function BannerCarousel({ banners }: { banners: any[] }) {
 
   if (!banners.length) {
     return (
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-10">
-        <div className="glass rounded-3xl p-16 text-center">
-          <div className="text-xs uppercase tracking-[0.3em] text-[var(--color-gold-soft)] mb-3">Welcome</div>
-          <h1 className="font-display text-5xl sm:text-6xl">Vins Watch</h1>
-          <p className="text-muted-foreground mt-4 max-w-lg mx-auto">Add banners in the admin panel to showcase featured collections at the top of your store.</p>
-          <Link to="/shop" className="inline-flex items-center gap-2 mt-8 px-8 py-3.5 rounded-full btn-gold">
-            Shop collection <ArrowRight className="w-4 h-4" />
-          </Link>
+      <section className="w-full pt-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="glass rounded-3xl p-16 text-center">
+            <div className="text-xs uppercase tracking-[0.3em] text-[var(--color-gold-soft)] mb-3">Welcome</div>
+            <h1 className="font-display text-5xl sm:text-6xl">Vins Watch</h1>
+            <p className="text-muted-foreground mt-4 max-w-lg mx-auto">Add banners in the admin panel to showcase featured collections at the top of your store.</p>
+            <Link to="/shop" className="inline-flex items-center gap-2 mt-8 px-8 py-3.5 rounded-full btn-gold">
+              Shop collection <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+    <section className="w-full">
       <div className="relative">
-        <div className="overflow-hidden rounded-3xl glass" ref={emblaRef}>
+        <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
             {banners.map((b) => (
               <div key={b.id} className="relative flex-[0_0_100%] min-w-0">
-                <div className="relative h-[360px] sm:h-[480px] lg:h-[560px] overflow-hidden">
+                <div className={`relative ${BANNER_HEIGHT[b.size] ?? BANNER_HEIGHT.medium} overflow-hidden`}>
                   {b.image_url ? (
                     <img src={b.image_url} alt={b.title} className="absolute inset-0 w-full h-full object-cover scale-105 animate-[kenburns_20s_ease-in-out_infinite_alternate]" />
                   ) : (
                     <div className="absolute inset-0" style={{ background: "var(--gradient-bg)" }} />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
-                  <div className="relative h-full flex flex-col justify-center px-8 sm:px-14 lg:px-20 max-w-2xl animate-fade-in">
+                  <div className="relative h-full flex flex-col justify-center px-6 sm:px-14 lg:px-20 max-w-2xl animate-fade-in">
                     <div className="text-xs uppercase tracking-[0.4em] text-[var(--color-gold-soft)] mb-4">Featured</div>
                     <h2 className="font-display text-4xl sm:text-6xl lg:text-7xl leading-[1.02]">{b.title}</h2>
                     {b.subtitle && <p className="text-muted-foreground mt-4 text-base sm:text-lg max-w-md">{b.subtitle}</p>}
