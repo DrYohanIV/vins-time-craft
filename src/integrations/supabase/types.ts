@@ -53,6 +53,75 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      collections: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          image_url: string | null
+          link_url: string | null
+          size: Database["public"]["Enums"]["collection_size"]
+          sort_order: number
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          size?: Database["public"]["Enums"]["collection_size"]
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          size?: Database["public"]["Enums"]["collection_size"]
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           active: boolean
@@ -311,6 +380,7 @@ export type Database = {
           created_at: string
           description: string | null
           featured: boolean
+          hot_seller: boolean
           id: string
           image_url: string | null
           images: string[]
@@ -324,6 +394,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           featured?: boolean
+          hot_seller?: boolean
           id?: string
           image_url?: string | null
           images?: string[]
@@ -337,6 +408,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           featured?: boolean
+          hot_seller?: boolean
           id?: string
           image_url?: string | null
           images?: string[]
@@ -363,6 +435,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "customer"
+      collection_size: "small" | "medium" | "large" | "wide" | "tall"
       order_status:
         | "pending"
         | "confirmed"
@@ -498,6 +571,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "customer"],
+      collection_size: ["small", "medium", "large", "wide", "tall"],
       order_status: [
         "pending",
         "confirmed",

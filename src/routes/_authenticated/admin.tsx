@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Package, ShoppingBag, LayoutDashboard, MessageSquare, Megaphone, Tag, Image as ImageIcon } from "lucide-react";
+import { Package, ShoppingBag, LayoutDashboard, MessageSquare, Megaphone, Tag, Image as ImageIcon, Layers, Grid3x3 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminLayout });
 
@@ -51,6 +51,8 @@ function AdminLayout() {
     { to: "/admin/promotions", label: "Promotions", icon: Megaphone },
     { to: "/admin/discounts", label: "Discounts", icon: Tag },
     { to: "/admin/banners", label: "Banners", icon: ImageIcon },
+    { to: "/admin/brands", label: "Brands", icon: Grid3x3 },
+    { to: "/admin/collections", label: "Collections", icon: Layers },
   ];
 
   return (
