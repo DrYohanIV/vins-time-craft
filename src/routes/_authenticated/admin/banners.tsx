@@ -8,8 +8,9 @@ import { Modal, Actions, Input } from "./promotions";
 
 export const Route = createFileRoute("/_authenticated/admin/banners")({ component: AdminBanners });
 
-type Form = { id?: string; title: string; subtitle: string; image_url: string; cta_label: string; cta_url: string; active: boolean; sort_order: string };
-const empty: Form = { title: "", subtitle: "", image_url: "", cta_label: "", cta_url: "", active: true, sort_order: "0" };
+const SIZES = ["small", "medium", "large", "full", "tall"] as const;
+type Form = { id?: string; title: string; subtitle: string; image_url: string; cta_label: string; cta_url: string; active: boolean; sort_order: string; size: string };
+const empty: Form = { title: "", subtitle: "", image_url: "", cta_label: "", cta_url: "", active: true, sort_order: "0", size: "medium" };
 
 function AdminBanners() {
   const qc = useQueryClient();
@@ -30,6 +31,7 @@ function AdminBanners() {
       cta_url: editing.cta_url || null,
       active: editing.active,
       sort_order: Number(editing.sort_order) || 0,
+      size: editing.size || "medium",
     };
     const { error } = editing.id
       ? await supabase.from("banners").update(payload).eq("id", editing.id)
@@ -63,9 +65,10 @@ function AdminBanners() {
               <div>
                 <div className="font-display text-lg">{b.title} {!b.active && <span className="text-xs text-muted-foreground ml-2">(inactive)</span>}</div>
                 {b.subtitle && <div className="text-sm text-muted-foreground">{b.subtitle}</div>}
+                <div className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">Size: {b.size ?? "medium"}</div>
               </div>
               <div className="flex gap-1 shrink-0">
-                <button onClick={() => setEditing({ id: b.id, title: b.title, subtitle: b.subtitle ?? "", image_url: b.image_url ?? "", cta_label: b.cta_label ?? "", cta_url: b.cta_url ?? "", active: b.active, sort_order: String(b.sort_order) })} className="p-2 hover:text-[var(--color-gold)]"><Pencil className="w-4 h-4" /></button>
+                <button onClick={() => setEditing({ id: b.id, title: b.title, subtitle: b.subtitle ?? "", image_url: b.image_url ?? "", cta_label: b.cta_label ?? "", cta_url: b.cta_url ?? "", active: b.active, sort_order: String(b.sort_order), size: b.size ?? "medium" })} className="p-2 hover:text-[var(--color-gold)]"><Pencil className="w-4 h-4" /></button>
                 <button onClick={() => remove(b.id)} className="p-2 hover:text-destructive"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
@@ -84,6 +87,12 @@ function AdminBanners() {
             <div className="grid grid-cols-2 gap-3">
               <Input label="CTA label" value={editing.cta_label} onChange={(v) => setEditing({ ...editing, cta_label: v })} required={false} />
               <Input label="CTA URL" value={editing.cta_url} onChange={(v) => setEditing({ ...editing, cta_url: v })} required={false} />
+            </div>
+            <div>
+              <label className="block text-sm text-muted-foreground mb-1">Size</label>
+              <select value={editing.size} onChange={(e) => setEditing({ ...editing, size: e.target.value })} className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm">
+                {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
             <Input label="Sort order" type="number" value={editing.sort_order} onChange={(v) => setEditing({ ...editing, sort_order: v })} />
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={editing.active} onChange={(e) => setEditing({ ...editing, active: e.target.checked })} /> Active</label>
