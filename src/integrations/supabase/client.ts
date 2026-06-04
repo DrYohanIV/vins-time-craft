@@ -5,8 +5,14 @@ import type { Database } from './types';
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  let SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  let SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+
+  // Clean surrounding quotes if any (common when copy-pasting from .env to Vercel)
+  if (SUPABASE_URL) SUPABASE_URL = SUPABASE_URL.replace(/^["']|["']$/g, "");
+  if (SUPABASE_PUBLISHABLE_KEY) SUPABASE_PUBLISHABLE_KEY = SUPABASE_PUBLISHABLE_KEY.replace(/^["']|["']$/g, "");
+
+  console.log(`[Supabase Client Init] URL length: ${SUPABASE_URL ? SUPABASE_URL.length : 0}, Key length: ${SUPABASE_PUBLISHABLE_KEY ? SUPABASE_PUBLISHABLE_KEY.length : 0}`);
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [

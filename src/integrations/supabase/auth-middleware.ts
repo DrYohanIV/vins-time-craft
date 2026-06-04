@@ -9,8 +9,12 @@ import type { Database } from './types'
 export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server(
   async ({ next }) => {
     
-    const SUPABASE_URL = process.env.SUPABASE_URL;
-    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+    let SUPABASE_URL = process.env.SUPABASE_URL;
+    let SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+
+    // Clean surrounding quotes if any (common when copy-pasting from .env to Vercel)
+    if (SUPABASE_URL) SUPABASE_URL = SUPABASE_URL.replace(/^["']|["']$/g, "");
+    if (SUPABASE_PUBLISHABLE_KEY) SUPABASE_PUBLISHABLE_KEY = SUPABASE_PUBLISHABLE_KEY.replace(/^["']|["']$/g, "");
 
     if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
       const missing = [
