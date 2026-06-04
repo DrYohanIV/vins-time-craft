@@ -21,9 +21,10 @@ type WatchForm = {
   image_url: string;
   images: string[];
   featured: boolean;
+  hot_seller: boolean;
 };
 
-const emptyForm: WatchForm = { name: "", brand: "", description: "", price: "", stock: "1", image_url: "", images: [], featured: false };
+const emptyForm: WatchForm = { name: "", brand: "", description: "", price: "", stock: "1", image_url: "", images: [], featured: false, hot_seller: false };
 
 async function uploadFile(file: File): Promise<string> {
   const ext = file.name.split(".").pop() ?? "jpg";
@@ -74,6 +75,7 @@ function AdminWatches() {
       image_url: editing.image_url || null,
       images: editing.images,
       featured: editing.featured,
+      hot_seller: editing.hot_seller,
     };
     const { error } = editing.id
       ? await supabase.from("watches").update(payload).eq("id", editing.id)
@@ -84,6 +86,8 @@ function AdminWatches() {
     qc.invalidateQueries({ queryKey: ["admin-watches"] });
     qc.invalidateQueries({ queryKey: ["watches"] });
     qc.invalidateQueries({ queryKey: ["featured-watches"] });
+    qc.invalidateQueries({ queryKey: ["hot-sellers"] });
+    qc.invalidateQueries({ queryKey: ["new-arrivals"] });
   };
 
   const remove = async (id: string) => {
@@ -164,7 +168,7 @@ function AdminWatches() {
                 </td>
                 <td className="p-3 text-muted-foreground">{1 + (w.images?.length ?? 0)}</td>
                 <td className="p-3 text-right">
-                  <button onClick={() => setEditing({ id: w.id, name: w.name, brand: w.brand, description: w.description ?? "", price: String(w.price), stock: String(w.stock), image_url: w.image_url ?? "", images: w.images ?? [], featured: w.featured })} className="p-2 hover:text-[var(--color-gold)]"><Pencil className="w-4 h-4" /></button>
+                  <button onClick={() => setEditing({ id: w.id, name: w.name, brand: w.brand, description: w.description ?? "", price: String(w.price), stock: String(w.stock), image_url: w.image_url ?? "", images: w.images ?? [], featured: w.featured, hot_seller: (w as any).hot_seller ?? false })} className="p-2 hover:text-[var(--color-gold)]"><Pencil className="w-4 h-4" /></button>
                   <button onClick={() => remove(w.id)} className="p-2 hover:text-destructive"><Trash2 className="w-4 h-4" /></button>
                 </td>
               </tr>
@@ -224,10 +228,16 @@ function AdminWatches() {
             <MainImageField value={editing.image_url} onChange={(v) => setEditing({ ...editing, image_url: v })} />
             <GalleryField values={editing.images} onChange={(v) => setEditing({ ...editing, images: v })} />
 
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={editing.featured} onChange={(e) => setEditing({ ...editing, featured: e.target.checked })} />
-              Feature on homepage
-            </label>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={editing.featured} onChange={(e) => setEditing({ ...editing, featured: e.target.checked })} />
+                New arrival (featured)
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={editing.hot_seller} onChange={(e) => setEditing({ ...editing, hot_seller: e.target.checked })} />
+                Hot seller
+              </label>
+            </div>
             <div className="flex gap-2 pt-2">
               <button type="button" onClick={() => setEditing(null)} className="flex-1 py-2.5 rounded-full btn-glass">Cancel</button>
               <button className="flex-1 py-2.5 rounded-full btn-gold">{editing.id ? "Save" : "Add watch"}</button>
