@@ -1,0 +1,1 @@
+import{d as n,e as s,r as o,j as r,O as u}from"./index-qZy-Vsly.js";function c(){const{user:t,loading:e}=n(),a=s();return o.useEffect(()=>{!e&&!t&&a({to:"/auth",search:{redirect:window.location.pathname}})},[t,e,a]),e?r.jsx("div",{className:"text-center py-20 text-muted-foreground",children:"Loading…"}):t?r.jsx(u,{}):null}export{c as component};
