@@ -8,6 +8,8 @@ import { Plus, Pencil, Trash2, Star, AlertTriangle, Upload, X, ImagePlus, Loader
 const LOW_STOCK_THRESHOLD = 3;
 const PAGE_SIZE = 10;
 import { formatLKR } from "@/lib/cart";
+import { WatchExcelImport } from "@/components/admin/watch-excel-import";
+
 
 export const Route = createFileRoute("/_authenticated/admin/watches")({ component: AdminWatches });
 
@@ -116,9 +118,19 @@ function AdminWatches() {
               className="w-full glass rounded-full pl-9 pr-4 py-2 text-sm outline-none focus:border-[var(--color-gold)]"
             />
           </div>
+          <WatchExcelImport
+            onImported={() => {
+              qc.invalidateQueries({ queryKey: ["admin-watches"] });
+              qc.invalidateQueries({ queryKey: ["watches"] });
+              qc.invalidateQueries({ queryKey: ["featured-watches"] });
+              qc.invalidateQueries({ queryKey: ["hot-sellers"] });
+              qc.invalidateQueries({ queryKey: ["new-arrivals"] });
+            }}
+          />
           <button onClick={() => setEditing({ ...emptyForm })} className="px-4 py-2 rounded-full btn-gold text-sm inline-flex items-center gap-2 shrink-0">
             <Plus className="w-4 h-4" /> Add watch
           </button>
+
         </div>
       </div>
 
