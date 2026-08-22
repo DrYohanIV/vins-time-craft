@@ -8,6 +8,8 @@ import { Plus, Pencil, Trash2, Star, AlertTriangle, Upload, X, ImagePlus, Loader
 const LOW_STOCK_THRESHOLD = 3;
 const PAGE_SIZE = 10;
 import { formatLKR } from "@/lib/cart";
+import { WatchExcelImport } from "@/components/admin/watch-excel-import";
+
 
 export const Route = createFileRoute("/_authenticated/admin/watches")({ component: AdminWatches });
 
