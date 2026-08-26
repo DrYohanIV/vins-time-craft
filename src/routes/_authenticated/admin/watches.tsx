@@ -303,7 +303,14 @@ function AdminWatches() {
           <thead className="text-left text-muted-foreground border-b border-[var(--color-border)]">
             <tr>
               <th className="p-3 w-10">
-                <input type="checkbox" checked={allPageSelected} onChange={togglePage} title="Select all on this page" className="accent-[var(--color-gold)] w-4 h-4 align-middle cursor-pointer" />
+                <input
+                  type="checkbox"
+                  checked={selectAllFiltered || allPageSelected}
+                  ref={(el) => { if (el) el.indeterminate = somePageSelected && !allPageSelected && !selectAllFiltered; }}
+                  onChange={togglePage}
+                  title={selectAllFiltered ? "Clear selection" : allPageSelected ? "Select all matches" : "Select all on this page"}
+                  className="accent-[var(--color-gold)] w-4 h-4 align-middle cursor-pointer"
+                />
               </th>
               <th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Images</th><th className="p-3"></th>
             </tr>
