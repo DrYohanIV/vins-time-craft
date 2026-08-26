@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useRef, useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Star, AlertTriangle, Upload, X, ImagePlus, Loader2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Flame, Percent, AlertTriangle, Upload, X, ImagePlus, Loader2, Search, CheckSquare } from "lucide-react";
 
 const LOW_STOCK_THRESHOLD = 3;
 const PAGE_SIZE = 10;
@@ -49,6 +49,9 @@ function AdminWatches() {
   const [editing, setEditing] = useState<WatchForm | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [priceAdjust, setPriceAdjust] = useState("");
 
   const filtered = useMemo(() => {
     if (!watches) return [];
@@ -64,6 +67,76 @@ function AdminWatches() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const invalidateAll = () => {
+    ["admin-watches", "watches", "featured-watches", "hot-sellers", "new-arrivals"].forEach((k) =>
+      qc.invalidateQueries({ queryKey: [k] })
+    );
+  };
+
+  const toggleOne = (id: string) =>
+    setSelected((s) => {
+      const next = new Set(s);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const pageIds = paginated.map((w) => w.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const togglePage = () =>
+    setSelected((s) => {
+      const next = new Set(s);
+      if (allPageSelected) pageIds.forEach((id) => next.delete(id));
+      else pageIds.forEach((id) => next.add(id));
+      return next;
+    });
+
+  const bulkDelete = async () => {
+    if (!selected.size) return;
+    if (!confirm(`Delete ${selected.size} watch${selected.size === 1 ? "" : "es"}?`)) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("watches").delete().in("id", [...selected]);
+    setBulkBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(`${selected.size} watch${selected.size === 1 ? "" : "es"} deleted`);
+    setSelected(new Set());
+    invalidateAll();
+  };
+
+  const bulkFlag = async (field: "featured" | "hot_seller", value: boolean) => {
+    if (!selected.size) return;
+    setBulkBusy(true);
+    const payload = field === "featured" ? { featured: value } : { hot_seller: value };
+    const { error } = await supabase.from("watches").update(payload).in("id", [...selected]);
+    setBulkBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Updated ${selected.size} watch${selected.size === 1 ? "" : "es"}`);
+    setSelected(new Set());
+    invalidateAll();
+  };
+
+  const bulkPrice = async () => {
+    const pct = Number(priceAdjust);
+    if (!selected.size || !priceAdjust || isNaN(pct)) return toast.error("Enter a percentage, e.g. 10 or -5");
+    if (!confirm(`Adjust price by ${pct}% for ${selected.size} watch${selected.size === 1 ? "" : "es"}?`)) return;
+    setBulkBusy(true);
+    const rows = watches!.filter((w) => selected.has(w.id));
+    const results = await Promise.all(
+      rows.map((w) =>
+        supabase
+          .from("watches")
+          .update({ price: Math.max(0, Math.round(Number(w.price) * (1 + pct / 100))) })
+          .eq("id", w.id)
+      )
+    );
+    setBulkBusy(false);
+    const failed = results.find((r) => r.error);
+    if (failed?.error) return toast.error(failed.error.message);
+    toast.success(`Prices adjusted by ${pct}% on ${rows.length} watch${rows.length === 1 ? "" : "es"}`);
+    setSelected(new Set());
+    setPriceAdjust("");
+    invalidateAll();
+  };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +207,45 @@ function AdminWatches() {
         </div>
       </div>
 
+      {selected.size > 0 && (
+        <div className="glass-strong rounded-2xl p-3 mb-4 flex flex-wrap items-center gap-2 border border-[var(--color-gold)]/40">
+          <span className="text-sm font-medium px-2">{selected.size} selected</span>
+          <button disabled={bulkBusy} onClick={() => bulkFlag("featured", true)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+            <Star className="w-3.5 h-3.5" /> New arrival
+          </button>
+          <button disabled={bulkBusy} onClick={() => bulkFlag("featured", false)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+            <Star className="w-3.5 h-3.5" /> Unset arrival
+          </button>
+          <button disabled={bulkBusy} onClick={() => bulkFlag("hot_seller", true)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+            <Flame className="w-3.5 h-3.5" /> Hot seller
+          </button>
+          <button disabled={bulkBusy} onClick={() => bulkFlag("hot_seller", false)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+            <Flame className="w-3.5 h-3.5" /> Unset hot
+          </button>
+          <div className="flex items-center gap-1.5">
+            <div className="relative">
+              <Percent className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <input
+                type="number"
+                value={priceAdjust}
+                onChange={(e) => setPriceAdjust(e.target.value)}
+                placeholder="±%"
+                className="w-20 glass rounded-full pl-7 pr-2 py-1.5 text-xs outline-none focus:border-[var(--color-gold)]"
+              />
+            </div>
+            <button disabled={bulkBusy} onClick={bulkPrice} className="px-3 py-1.5 rounded-full btn-gold text-xs disabled:opacity-50">
+              Apply price
+            </button>
+          </div>
+          <button disabled={bulkBusy} onClick={bulkDelete} className="px-3 py-1.5 rounded-full text-xs inline-flex items-center gap-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 disabled:opacity-50">
+            {bulkBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Delete
+          </button>
+          <button onClick={() => setSelected(new Set())} className="ml-auto p-1.5 hover:text-[var(--color-gold)]" title="Clear selection">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {lowStock.length > 0 && (
         <div className="glass rounded-2xl p-4 mb-4 border border-amber-500/40 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
@@ -150,11 +262,19 @@ function AdminWatches() {
       <div className="glass rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
           <thead className="text-left text-muted-foreground border-b border-[var(--color-border)]">
-            <tr><th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Images</th><th className="p-3"></th></tr>
+            <tr>
+              <th className="p-3 w-10">
+                <input type="checkbox" checked={allPageSelected} onChange={togglePage} title="Select all on this page" className="accent-[var(--color-gold)] w-4 h-4 align-middle cursor-pointer" />
+              </th>
+              <th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Images</th><th className="p-3"></th>
+            </tr>
           </thead>
           <tbody>
             {paginated.map((w) => (
-              <tr key={w.id} className="border-b border-[var(--color-border)] last:border-0">
+              <tr key={w.id} className={`border-b border-[var(--color-border)] last:border-0 ${selected.has(w.id) ? "bg-[var(--color-gold)]/10" : ""}`}>
+                <td className="p-3">
+                  <input type="checkbox" checked={selected.has(w.id)} onChange={() => toggleOne(w.id)} className="accent-[var(--color-gold)] w-4 h-4 align-middle cursor-pointer" />
+                </td>
                 <td className="p-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0" style={{ background: "var(--gradient-bg)" }}>
@@ -186,7 +306,7 @@ function AdminWatches() {
               </tr>
             ))}
             {!paginated.length && (
-              <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{searchQuery ? "No watches match your search." : "No watches yet. Add your first."}</td></tr>
+              <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">{searchQuery ? "No watches match your search." : "No watches yet. Add your first."}</td></tr>
             )}
           </tbody>
         </table>
