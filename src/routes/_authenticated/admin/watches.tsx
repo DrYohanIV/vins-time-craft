@@ -81,13 +81,15 @@ function AdminWatches() {
     setSelectAllFiltered(false);
   };
 
-  const toggleOne = (id: string) =>
+  const toggleOne = (id: string) => {
+    setSelectAllFiltered(false);
     setSelected((s) => {
       const next = new Set(s);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
+  };
 
   const pageIds = paginated.map((w) => w.id);
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
@@ -210,7 +212,7 @@ function AdminWatches() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+              onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search watches or brands…"
               className="w-full glass rounded-full pl-9 pr-4 py-2 text-sm outline-none focus:border-[var(--color-gold)]"
             />
