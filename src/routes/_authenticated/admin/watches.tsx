@@ -50,6 +50,7 @@ function AdminWatches() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectAllFiltered, setSelectAllFiltered] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [priceAdjust, setPriceAdjust] = useState("");
 
@@ -67,6 +68,7 @@ function AdminWatches() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const filteredIds = useMemo(() => new Set(filtered.map((w) => w.id)), [filtered]);
 
   const invalidateAll = () => {
     ["admin-watches", "watches", "featured-watches", "hot-sellers", "new-arrivals"].forEach((k) =>
@@ -74,22 +76,44 @@ function AdminWatches() {
     );
   };
 
+  const clearSelection = () => {
+    setSelected(new Set());
+    setSelectAllFiltered(false);
+  };
+
   const toggleOne = (id: string) =>
     setSelected((s) => {
       const next = new Set(s);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
 
   const pageIds = paginated.map((w) => w.id);
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
-  const togglePage = () =>
+  const somePageSelected = pageIds.some((id) => selected.has(id));
+  const togglePage = () => {
+    if (selectAllFiltered) {
+      clearSelection();
+      return;
+    }
+    if (allPageSelected) {
+      setSelected(new Set(filtered.map((w) => w.id)));
+      setSelectAllFiltered(true);
+      return;
+    }
     setSelected((s) => {
       const next = new Set(s);
-      if (allPageSelected) pageIds.forEach((id) => next.delete(id));
-      else pageIds.forEach((id) => next.add(id));
+      pageIds.forEach((id) => next.add(id));
       return next;
     });
+  };
+
+  const onSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+    clearSelection();
+  };
 
   const bulkDelete = async () => {
     if (!selected.size) return;
