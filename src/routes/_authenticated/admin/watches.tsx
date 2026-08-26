@@ -261,11 +261,19 @@ function AdminWatches() {
       <div className="glass rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
           <thead className="text-left text-muted-foreground border-b border-[var(--color-border)]">
-            <tr><th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Images</th><th className="p-3"></th></tr>
+            <tr>
+              <th className="p-3 w-10">
+                <input type="checkbox" checked={allPageSelected} onChange={togglePage} title="Select all on this page" className="accent-[var(--color-gold)] w-4 h-4 align-middle cursor-pointer" />
+              </th>
+              <th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Images</th><th className="p-3"></th>
+            </tr>
           </thead>
           <tbody>
             {paginated.map((w) => (
-              <tr key={w.id} className="border-b border-[var(--color-border)] last:border-0">
+              <tr key={w.id} className={`border-b border-[var(--color-border)] last:border-0 ${selected.has(w.id) ? "bg-[var(--color-gold)]/10" : ""}`}>
+                <td className="p-3">
+                  <input type="checkbox" checked={selected.has(w.id)} onChange={() => toggleOne(w.id)} className="accent-[var(--color-gold)] w-4 h-4 align-middle cursor-pointer" />
+                </td>
                 <td className="p-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0" style={{ background: "var(--gradient-bg)" }}>
