@@ -305,7 +305,7 @@ function AdminWatches() {
               </tr>
             ))}
             {!paginated.length && (
-              <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{searchQuery ? "No watches match your search." : "No watches yet. Add your first."}</td></tr>
+              <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">{searchQuery ? "No watches match your search." : "No watches yet. Add your first."}</td></tr>
             )}
           </tbody>
         </table>
