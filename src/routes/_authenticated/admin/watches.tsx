@@ -49,6 +49,9 @@ function AdminWatches() {
   const [editing, setEditing] = useState<WatchForm | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [priceAdjust, setPriceAdjust] = useState("");
 
   const filtered = useMemo(() => {
     if (!watches) return [];
