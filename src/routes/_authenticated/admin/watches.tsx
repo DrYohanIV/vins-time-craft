@@ -50,6 +50,7 @@ function AdminWatches() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectAllFiltered, setSelectAllFiltered] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [priceAdjust, setPriceAdjust] = useState("");
 
@@ -67,6 +68,7 @@ function AdminWatches() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const filteredIds = useMemo(() => new Set(filtered.map((w) => w.id)), [filtered]);
 
   const invalidateAll = () => {
     ["admin-watches", "watches", "featured-watches", "hot-sellers", "new-arrivals"].forEach((k) =>
@@ -74,22 +76,46 @@ function AdminWatches() {
     );
   };
 
-  const toggleOne = (id: string) =>
+  const clearSelection = () => {
+    setSelected(new Set());
+    setSelectAllFiltered(false);
+  };
+
+  const toggleOne = (id: string) => {
+    setSelectAllFiltered(false);
     setSelected((s) => {
       const next = new Set(s);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
+  };
 
   const pageIds = paginated.map((w) => w.id);
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
-  const togglePage = () =>
+  const somePageSelected = pageIds.some((id) => selected.has(id));
+  const togglePage = () => {
+    if (selectAllFiltered) {
+      clearSelection();
+      return;
+    }
+    if (allPageSelected) {
+      setSelected(new Set(filtered.map((w) => w.id)));
+      setSelectAllFiltered(true);
+      return;
+    }
     setSelected((s) => {
       const next = new Set(s);
-      if (allPageSelected) pageIds.forEach((id) => next.delete(id));
-      else pageIds.forEach((id) => next.add(id));
+      pageIds.forEach((id) => next.add(id));
       return next;
     });
+  };
+
+  const onSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+    clearSelection();
+  };
 
   const bulkDelete = async () => {
     if (!selected.size) return;
@@ -186,7 +212,7 @@ function AdminWatches() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+              onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search watches or brands…"
               className="w-full glass rounded-full pl-9 pr-4 py-2 text-sm outline-none focus:border-[var(--color-gold)]"
             />
@@ -209,7 +235,20 @@ function AdminWatches() {
 
       {selected.size > 0 && (
         <div className="glass-strong rounded-2xl p-3 mb-4 flex flex-wrap items-center gap-2 border border-[var(--color-gold)]/40">
-          <span className="text-sm font-medium px-2">{selected.size} selected</span>
+          <span className="text-sm font-medium px-2">
+            {selectAllFiltered ? `All ${selected.size} watches selected` : `${selected.size} selected`}
+          </span>
+          {!selectAllFiltered && selected.size === pageIds.length && pageIds.length < filtered.length && (
+            <button
+              onClick={() => {
+                setSelected(new Set(filtered.map((w) => w.id)));
+                setSelectAllFiltered(true);
+              }}
+              className="text-xs text-[var(--color-gold)] hover:underline px-2"
+            >
+              Select all {filtered.length} matches
+            </button>
+          )}
           <button disabled={bulkBusy} onClick={() => bulkFlag("featured", true)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
             <Star className="w-3.5 h-3.5" /> New arrival
           </button>
@@ -240,7 +279,7 @@ function AdminWatches() {
           <button disabled={bulkBusy} onClick={bulkDelete} className="px-3 py-1.5 rounded-full text-xs inline-flex items-center gap-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 disabled:opacity-50">
             {bulkBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Delete
           </button>
-          <button onClick={() => setSelected(new Set())} className="ml-auto p-1.5 hover:text-[var(--color-gold)]" title="Clear selection">
+          <button onClick={clearSelection} className="ml-auto p-1.5 hover:text-[var(--color-gold)]" title="Clear selection">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -264,7 +303,14 @@ function AdminWatches() {
           <thead className="text-left text-muted-foreground border-b border-[var(--color-border)]">
             <tr>
               <th className="p-3 w-10">
-                <input type="checkbox" checked={allPageSelected} onChange={togglePage} title="Select all on this page" className="accent-[var(--color-gold)] w-4 h-4 align-middle cursor-pointer" />
+                <input
+                  type="checkbox"
+                  checked={selectAllFiltered || allPageSelected}
+                  ref={(el) => { if (el) el.indeterminate = somePageSelected && !allPageSelected && !selectAllFiltered; }}
+                  onChange={togglePage}
+                  title={selectAllFiltered ? "Clear selection" : allPageSelected ? "Select all matches" : "Select all on this page"}
+                  className="accent-[var(--color-gold)] w-4 h-4 align-middle cursor-pointer"
+                />
               </th>
               <th className="p-3">Watch</th><th className="p-3">Brand</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Images</th><th className="p-3"></th>
             </tr>
