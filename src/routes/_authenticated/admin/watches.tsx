@@ -206,6 +206,45 @@ function AdminWatches() {
         </div>
       </div>
 
+      {selected.size > 0 && (
+        <div className="glass-strong rounded-2xl p-3 mb-4 flex flex-wrap items-center gap-2 border border-[var(--color-gold)]/40">
+          <span className="text-sm font-medium px-2">{selected.size} selected</span>
+          <button disabled={bulkBusy} onClick={() => bulkFlag("featured", true)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+            <Star className="w-3.5 h-3.5" /> New arrival
+          </button>
+          <button disabled={bulkBusy} onClick={() => bulkFlag("featured", false)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+            <Star className="w-3.5 h-3.5" /> Unset arrival
+          </button>
+          <button disabled={bulkBusy} onClick={() => bulkFlag("hot_seller", true)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+            <Flame className="w-3.5 h-3.5" /> Hot seller
+          </button>
+          <button disabled={bulkBusy} onClick={() => bulkFlag("hot_seller", false)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+            <Flame className="w-3.5 h-3.5" /> Unset hot
+          </button>
+          <div className="flex items-center gap-1.5">
+            <div className="relative">
+              <Percent className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <input
+                type="number"
+                value={priceAdjust}
+                onChange={(e) => setPriceAdjust(e.target.value)}
+                placeholder="±%"
+                className="w-20 glass rounded-full pl-7 pr-2 py-1.5 text-xs outline-none focus:border-[var(--color-gold)]"
+              />
+            </div>
+            <button disabled={bulkBusy} onClick={bulkPrice} className="px-3 py-1.5 rounded-full btn-gold text-xs disabled:opacity-50">
+              Apply price
+            </button>
+          </div>
+          <button disabled={bulkBusy} onClick={bulkDelete} className="px-3 py-1.5 rounded-full text-xs inline-flex items-center gap-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 disabled:opacity-50">
+            {bulkBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Delete
+          </button>
+          <button onClick={() => setSelected(new Set())} className="ml-auto p-1.5 hover:text-[var(--color-gold)]" title="Clear selection">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {lowStock.length > 0 && (
         <div className="glass rounded-2xl p-4 mb-4 border border-amber-500/40 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
