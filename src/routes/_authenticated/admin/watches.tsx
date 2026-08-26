@@ -235,7 +235,20 @@ function AdminWatches() {
 
       {selected.size > 0 && (
         <div className="glass-strong rounded-2xl p-3 mb-4 flex flex-wrap items-center gap-2 border border-[var(--color-gold)]/40">
-          <span className="text-sm font-medium px-2">{selected.size} selected</span>
+          <span className="text-sm font-medium px-2">
+            {selectAllFiltered ? `All ${selected.size} watches selected` : `${selected.size} selected`}
+          </span>
+          {!selectAllFiltered && selected.size === pageIds.length && pageIds.length < filtered.length && (
+            <button
+              onClick={() => {
+                setSelected(new Set(filtered.map((w) => w.id)));
+                setSelectAllFiltered(true);
+              }}
+              className="text-xs text-[var(--color-gold)] hover:underline px-2"
+            >
+              Select all {filtered.length} matches
+            </button>
+          )}
           <button disabled={bulkBusy} onClick={() => bulkFlag("featured", true)} className="px-3 py-1.5 rounded-full btn-glass text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
             <Star className="w-3.5 h-3.5" /> New arrival
           </button>
@@ -266,7 +279,7 @@ function AdminWatches() {
           <button disabled={bulkBusy} onClick={bulkDelete} className="px-3 py-1.5 rounded-full text-xs inline-flex items-center gap-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 disabled:opacity-50">
             {bulkBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Delete
           </button>
-          <button onClick={() => setSelected(new Set())} className="ml-auto p-1.5 hover:text-[var(--color-gold)]" title="Clear selection">
+          <button onClick={clearSelection} className="ml-auto p-1.5 hover:text-[var(--color-gold)]" title="Clear selection">
             <X className="w-4 h-4" />
           </button>
         </div>
