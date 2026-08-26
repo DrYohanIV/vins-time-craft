@@ -106,7 +106,8 @@ function AdminWatches() {
   const bulkFlag = async (field: "featured" | "hot_seller", value: boolean) => {
     if (!selected.size) return;
     setBulkBusy(true);
-    const { error } = await supabase.from("watches").update({ [field]: value }).in("id", [...selected]);
+    const payload = field === "featured" ? { featured: value } : { hot_seller: value };
+    const { error } = await supabase.from("watches").update(payload).in("id", [...selected]);
     setBulkBusy(false);
     if (error) return toast.error(error.message);
     toast.success(`Updated ${selected.size} watch${selected.size === 1 ? "" : "es"}`);
