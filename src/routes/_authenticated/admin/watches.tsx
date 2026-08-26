@@ -68,6 +68,75 @@ function AdminWatches() {
   const currentPage = Math.min(page, totalPages);
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
+  const invalidateAll = () => {
+    ["admin-watches", "watches", "featured-watches", "hot-sellers", "new-arrivals"].forEach((k) =>
+      qc.invalidateQueries({ queryKey: [k] })
+    );
+  };
+
+  const toggleOne = (id: string) =>
+    setSelected((s) => {
+      const next = new Set(s);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const pageIds = paginated.map((w) => w.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const togglePage = () =>
+    setSelected((s) => {
+      const next = new Set(s);
+      if (allPageSelected) pageIds.forEach((id) => next.delete(id));
+      else pageIds.forEach((id) => next.add(id));
+      return next;
+    });
+
+  const bulkDelete = async () => {
+    if (!selected.size) return;
+    if (!confirm(`Delete ${selected.size} watch${selected.size === 1 ? "" : "es"}?`)) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("watches").delete().in("id", [...selected]);
+    setBulkBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(`${selected.size} watch${selected.size === 1 ? "" : "es"} deleted`);
+    setSelected(new Set());
+    invalidateAll();
+  };
+
+  const bulkFlag = async (field: "featured" | "hot_seller", value: boolean) => {
+    if (!selected.size) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("watches").update({ [field]: value }).in("id", [...selected]);
+    setBulkBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Updated ${selected.size} watch${selected.size === 1 ? "" : "es"}`);
+    setSelected(new Set());
+    invalidateAll();
+  };
+
+  const bulkPrice = async () => {
+    const pct = Number(priceAdjust);
+    if (!selected.size || !priceAdjust || isNaN(pct)) return toast.error("Enter a percentage, e.g. 10 or -5");
+    if (!confirm(`Adjust price by ${pct}% for ${selected.size} watch${selected.size === 1 ? "" : "es"}?`)) return;
+    setBulkBusy(true);
+    const rows = watches!.filter((w) => selected.has(w.id));
+    const results = await Promise.all(
+      rows.map((w) =>
+        supabase
+          .from("watches")
+          .update({ price: Math.max(0, Math.round(Number(w.price) * (1 + pct / 100))) })
+          .eq("id", w.id)
+      )
+    );
+    setBulkBusy(false);
+    const failed = results.find((r) => r.error);
+    if (failed?.error) return toast.error(failed.error.message);
+    toast.success(`Prices adjusted by ${pct}% on ${rows.length} watch${rows.length === 1 ? "" : "es"}`);
+    setSelected(new Set());
+    setPriceAdjust("");
+    invalidateAll();
+  };
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editing) return;
