@@ -33,7 +33,3 @@ dist-ssr
 .env
 # Supabase CLI temp files
 supabase/.temp/
-
-# Vercel
-.vercel/
-.vercel

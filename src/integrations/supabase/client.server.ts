@@ -6,14 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 function createSupabaseAdminClient() {
-  let SUPABASE_URL = process.env.SUPABASE_URL;
-  let SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  // Clean surrounding quotes if any (common when copy-pasting from .env to Vercel)
-  if (SUPABASE_URL) SUPABASE_URL = SUPABASE_URL.replace(/^["']|["']$/g, "");
-  if (SUPABASE_SERVICE_ROLE_KEY) SUPABASE_SERVICE_ROLE_KEY = SUPABASE_SERVICE_ROLE_KEY.replace(/^["']|["']$/g, "");
-
-  console.log(`[Supabase Admin Client Init] URL length: ${SUPABASE_URL ? SUPABASE_URL.length : 0}, Key length: ${SUPABASE_SERVICE_ROLE_KEY ? SUPABASE_SERVICE_ROLE_KEY.length : 0}`);
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [
