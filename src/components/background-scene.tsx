@@ -50,6 +50,8 @@ function Gear({ size = 120, opacity = 0.08 }: { size?: number; opacity?: number 
   );
 }
 
+///
+
 export function BackgroundScene() {
   const watchRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
