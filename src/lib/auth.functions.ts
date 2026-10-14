@@ -1,8 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { generateVerificationToken, hashToken, sendVerificationEmail } from "./email.server";
+import {
+  generateVerificationToken,
+  getAppUrl,
+  hashToken,
+  sendVerificationEmail,
+} from "./email.server";
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -19,17 +23,6 @@ const VerifySchema = z.object({
 const ResendSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
 });
-
-function getAppUrl() {
-  const configured = process.env.APP_URL || process.env.VITE_APP_URL;
-  if (configured) return configured.replace(/\/+$/, "");
-  try {
-    const url = new URL(getRequest().url);
-    return `${url.protocol}//${url.host}`;
-  } catch {
-    return "";
-  }
-}
 
 async function issueVerification(userId: string, email: string, name?: string | null) {
   const { token, tokenHash } = generateVerificationToken();

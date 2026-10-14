@@ -275,11 +275,13 @@ export type Database = {
           customer_address: string
           customer_name: string
           customer_phone: string
+          delivery_method: Database["public"]["Enums"]["delivery_method"]
           discount_amount: number
           discount_code: string | null
           id: string
           notes: string | null
           payment_method: Database["public"]["Enums"]["payment_method"]
+          shipping_fee: number
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number | null
           total: number
@@ -291,11 +293,13 @@ export type Database = {
           customer_address: string
           customer_name: string
           customer_phone: string
+          delivery_method?: Database["public"]["Enums"]["delivery_method"]
           discount_amount?: number
           discount_code?: string | null
           id?: string
           notes?: string | null
           payment_method?: Database["public"]["Enums"]["payment_method"]
+          shipping_fee?: number
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number | null
           total: number
@@ -307,11 +311,13 @@ export type Database = {
           customer_address?: string
           customer_name?: string
           customer_phone?: string
+          delivery_method?: Database["public"]["Enums"]["delivery_method"]
           discount_amount?: number
           discount_code?: string | null
           id?: string
           notes?: string | null
           payment_method?: Database["public"]["Enums"]["payment_method"]
+          shipping_fee?: number
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number | null
           total?: number
@@ -380,6 +386,30 @@ export type Database = {
           subtitle?: string | null
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      store_settings: {
+        Row: {
+          callmebot_api_key: string | null
+          id: number
+          notification_email: string | null
+          updated_at: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          callmebot_api_key?: string | null
+          id?: number
+          notification_email?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          callmebot_api_key?: string | null
+          id?: number
+          notification_email?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
@@ -466,13 +496,14 @@ export type Database = {
     Enums: {
       app_role: "admin" | "customer"
       collection_size: "small" | "medium" | "large" | "wide" | "tall"
+      delivery_method: "store_pickup" | "islandwide_delivery"
       order_status:
         | "pending"
         | "confirmed"
         | "shipped"
         | "delivered"
         | "cancelled"
-      payment_method: "cod" | "online"
+      payment_method: "cod" | "online" | "bank_transfer"
     }
     CompositeTypes: {
       [_ in never]: never
