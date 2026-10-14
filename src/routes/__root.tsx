@@ -34,14 +34,15 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const message = error instanceof Error ? error.message : "Something went wrong";
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="glass-strong rounded-3xl p-10 max-w-md text-center">
         <h1 className="text-xl font-display">Something went wrong</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{message}</p>
         <button
           onClick={() => { router.invalidate(); reset(); }}
           className="mt-6 px-6 py-2 rounded-full btn-gold text-sm"
